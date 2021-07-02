@@ -1854,8 +1854,7 @@
     "cibaInterval": "5"
   },
   "keycloakVersion": "{{ KEYCLOAK_VERSION }}",
-  "userManagedAccessAllowed": false,
-  {% if KEYCLOAK_REALM_USER_ENABLED %}
+  {%- if KEYCLOAK_REALM_USER_ENABLED | string_to_bool %}
   "users": [
     {
       "id": "c420894f-36ba-4cd5-b4f8-1b24bd8c53db",
@@ -1873,6 +1872,7 @@
         }
       ]
     }
-  ]
-  {% endif %}
+  ],
+  {%- endif %}
+  "userManagedAccessAllowed": false
 }
