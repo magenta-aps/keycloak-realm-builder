@@ -1,11 +1,11 @@
 FROM python:3.9-slim
 
-ADD requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-ADD keycloak.env .
-ADD keycloak.json.j2 .
-ADD keycloak-realm.json.j2 .
+COPY keycloak.env .
+COPY keycloak.json.j2 .
+COPY keycloak-realm.json.j2 .
 
-ADD entrypoint.sh .
+COPY entrypoint.sh .
 ENTRYPOINT ["/bin/bash", "entrypoint.sh"]
