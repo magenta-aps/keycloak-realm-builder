@@ -109,10 +109,10 @@ Build RealmBuilder:
   before_script:
     - apk add skopeo
 
-Release dev:
+Release master:
   <<: *release-default
   rules:
-    - if: $CI_COMMIT_REF_NAME == "development"
+    - if: $CI_COMMIT_REF_NAME == "master"
   script:
     - skopeo copy
       --src-creds=${CI_REGISTRY_USER}:${CI_BUILD_TOKEN}
@@ -131,7 +131,7 @@ Release rc:
       "docker://${IMAGE_SHA}"
       "docker://${IMAGE_RC}"
 
-Release master:
+Release version:
   <<: *release-default
   rules:
       # Matches <version core> from SemVer 2.0.0 BNF grammar. Ex. 2.3.4, but not 2.3.4-rc
