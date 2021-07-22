@@ -1,7 +1,13 @@
+{#
+SPDX-FileCopyrightText: Magenta ApS
+
+SPDX-License-Identifier: MPL-2.0
+#}
+
 {
   "id": "mo",
   "realm": "mo",
-  "displayName": "{{ KEYCLOAK_REALM_DISPLAY_NAME }}",
+  "displayName": "{{ keycloak_realm_display_name }}",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -27,7 +33,7 @@
   "oauth2DeviceCodeLifespan": 600,
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
-  "sslRequired": "{{ KEYCLOAK_SSL_REQUIRED }}",
+  "sslRequired": "{{ keycloak_ssl_required }}",
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "rememberMe": false,
@@ -351,10 +357,10 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "{{ KEYCLOAK_MO_CLIENT_REDIRECT_URI }}"
+        "{{ keycloak_mo_client_redirect_uri }}"
       ],
       "webOrigins": [
-        "{{ KEYCLOAK_MO_CLIENT_WEB_ORIGIN }}"
+        "{{ keycloak_mo_client_web_origin }}"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -408,10 +414,10 @@
       "id": "11d757fe-960b-4c45-94f9-3f9c6dd763f4",
       "clientId": "dipex",
       "surrogateAuthRequired": false,
-      "enabled": {{ KEYCLOAK_DIPEX_CLIENT_ENABLED }},
+      "enabled": {{ keycloak_dipex_client_enabled|tojson }},
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "{{ KEYCLOAK_DIPEX_CLIENT_SECRET }}",
+      "secret": "{{ keycloak_dipex_client_secret }}",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1022,7 +1028,46 @@
   "enabledEventTypes": [],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
-  "identityProviders": [],
+  "identityProviders": [
+  {%- if keycloak_idp_enable %}
+    {
+      "addReadTokenRoleOnCreate": false,
+      "alias": "saml",
+      "authenticateByDefault": false,
+      "config": {
+        "addExtensionsElementWithKeyInfo": "false",
+        "allowCreate": "true",
+        "authnContextComparisonType": "exact",
+        "encryptionPublicKey": "{{ keycloak_idp_encryption_key }}",
+        "entityId": "http://localhost:8081/auth/realms/mo",
+        "loginHint": "false",
+        "nameIDPolicyFormat": "{{ keycloak_idp_name_id_policy_format }}",
+        "postBindingAuthnRequest": "true",
+        "postBindingLogout": "false",
+        "postBindingResponse": "true",
+        "principalAttribute": "email",
+        "principalType": "ATTRIBUTE",
+        "signatureAlgorithm": "RSA_SHA256",
+        "signingCertificate": "{{ keycloak_idp_signing_certificate }}",
+        "singleLogoutServiceUrl": "{{ keycloak_idp_logout_service_url }}",
+        "singleSignOnServiceUrl": "{{ keycloak_idp_signon_service_url }}",
+        "syncMode": "IMPORT",
+        "useJwksUrl": "true",
+        "validateSignature": "{{ keycloak_idp_signed_requests|tojson }}",
+        "wantAuthnRequestsSigned": "{{ keycloak_idp_signed_requests|tojson }}",
+        "xmlSigKeyInfoKeyNameTransformer": "KEY_ID"
+      },
+      "enabled": true,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "internalId": "f90ece19-f610-4b86-bf5e-6145bfb91453",
+      "linkOnly": false,
+      "providerId": "saml",
+      "storeToken": false,
+      "trustEmail": false,
+      "updateProfileFirstLoginMode": "on"
+    }
+  {%- endif %}
+  ],
   "identityProviderMappers": [],
   "components": {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
@@ -1443,6 +1488,9 @@
         },
         {
           "authenticator": "identity-provider-redirector",
+          {%- if keycloak_idp_enable %}
+          "authenticatorConfig": "saml",
+          {%- endif %}
           "authenticatorFlow": false,
           "requirement": "ALTERNATIVE",
           "priority": 25,
@@ -1762,11 +1810,24 @@
         "require.password.update.after.registration": "false"
       }
     },
+    {%- if keycloak_idp_enable %}
+    {
+      "id": "db872ded-98db-45b1-b0c6-50c959bef4ce",
+      "alias": "saml",
+      "config": {
+        "defaultProvider": "saml"
+      }
+    },
+    {%- endif %}
     {
       "id": "3de691c6-f71a-4bee-991b-f6b1e668cc61",
       "alias": "review profile config",
       "config": {
+        {%- if keycloak_idp_enable %}
+        "update.profile.on.first.login": "off"
+        {%- else -%}
         "update.profile.on.first.login": "missing"
+        {%- endif %}
       }
     }
   ],
@@ -1853,22 +1914,22 @@
     "clientOfflineSessionIdleTimeout": "0",
     "cibaInterval": "5"
   },
-  "keycloakVersion": "{{ KEYCLOAK_VERSION }}",
-  {%- if KEYCLOAK_REALM_USER_ENABLED | string_to_bool %}
+  "keycloakVersion": "{{ keycloak_version }}",
+  {%- if keycloak_realm_user_enabled %}
   "users": [
     {
       "id": "c420894f-36ba-4cd5-b4f8-1b24bd8c53db",
-      "username": "{{ KEYCLOAK_REALM_USER_USERNAME }}",
-      "firstName": "{{ KEYCLOAK_REALM_USER_FIRSTNAME }}",
-      "lastName": "{{ KEYCLOAK_REALM_USER_LASTNAME }}",
-      "email": "{{ KEYCLOAK_REALM_USER_EMAIL }}",
-      "enabled": {{ KEYCLOAK_REALM_USER_ENABLED }},
+      "username": "{{ keycloak_realm_user_username }}",
+      "firstName": "{{ keycloak_realm_user_firstname }}",
+      "lastName": "{{ keycloak_realm_user_lastname }}",
+      "email": "{{ keycloak_realm_user_email }}",
+      "enabled": {{ keycloak_realm_user_enabled|tojson }},
       "totp": false,
       "emailVerified": false,
       "credentials": [
         {
           "type": "password",
-          "value": "{{ KEYCLOAK_REALM_USER_PASSWORD }}"
+          "value": "{{ keycloak_realm_user_password }}"
         }
       ]
     }

@@ -1,0 +1,198 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
+import json
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import Optional
+
+import click
+from jinja2 import Template
+from pydantic import AnyHttpUrl
+from pydantic import BaseSettings
+from pydantic import EmailStr
+from pydantic import FilePath
+from pydantic import parse_obj_as
+from pydantic import root_validator
+
+
+class Settings(BaseSettings):
+    # Keycloak version
+    # Note: We currently use version 13.0.0 in the dev env
+    keycloak_version: str = "14.0.0"
+
+    # Display name shown on the main Keycloak user login page
+    keycloak_realm_display_name: str = "OS2mo"
+
+    # Frontend page that Keycloak is allowed to redirect users back to after they
+    # have authenticated successfully in Keycloak
+    keycloak_mo_client_redirect_uri: AnyHttpUrl = parse_obj_as(
+        AnyHttpUrl, "http://localhost:5001/*"
+    )
+
+    # Allowed CORS origins
+    keycloak_mo_client_web_origin: AnyHttpUrl = parse_obj_as(
+        AnyHttpUrl, "http://localhost:5001"
+    )
+
+    # Toggles DIPEX client enablement. If non-user clients should be allowed to
+    # contact Keycloak, the DIPEX client can be used. The client uses a
+    # client secret auth mechanism to get OIDC tokens instead of the usual
+    # username/password mechanism (see further details in the Sphinx MO docs on
+    # the development branch)
+    keycloak_dipex_client_enabled: bool = False
+
+    # DIPEX client secret that can be used to obtain an OIDC token
+    # For an example, see:
+    # * https://git.magenta.dk/rammearkitektur/os2mo/-/blob/development/backend/ \
+    #       tests/manual/keycloak-client-secret.py
+    keycloak_dipex_client_secret: Optional[str]
+
+    # If enabled the MO realm will have the user below auto-provisioned
+    # which can be handy for testing purposes
+    keycloak_realm_user_enabled: bool = False
+    keycloak_realm_user_username: Optional[str]
+    keycloak_realm_user_password: Optional[str]
+    keycloak_realm_user_firstname: Optional[str]
+    keycloak_realm_user_lastname: Optional[str]
+    keycloak_realm_user_email: Optional[EmailStr]
+
+    # More to come when RBAC will be enabled...
+
+    # IDP Configuration
+    keycloak_idp_enable: bool = False
+    keycloak_idp_encryption_key: Optional[str]
+    keycloak_idp_signing_certificate: Optional[str]
+    keycloak_idp_signed_requests: bool = False
+    keycloak_idp_name_id_policy_format: str = (
+        "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+    )
+    keycloak_idp_logout_service_url: Optional[AnyHttpUrl]
+    keycloak_idp_signon_service_url: Optional[AnyHttpUrl]
+
+    keycloak_auth_server_url: AnyHttpUrl = parse_obj_as(
+        AnyHttpUrl, "http://localhost:8081/auth/"
+    )
+
+    # Specifies whether SSL is required for Keycloak requests. Can be one of
+    # "all", "external" or "none". The options are further described here:
+    # https://www.keycloak.org/docs/latest/server_installation/#_setting_up_ssl
+    keycloak_ssl_required: str = "all"
+
+    @root_validator
+    def optionally_required(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Check that derived keys are set if master switch is set."""
+        optionally_required_fields = {
+            "keycloak_idp_enable": (
+                "keycloak_idp_encryption_key",
+                "keycloak_idp_signing_certificate",
+                "keycloak_idp_logout_service_url",
+                "keycloak_idp_signon_service_url",
+            ),
+            "keycloak_dipex_client_enabled": ("keycloak_dipex_client_secret",),
+            "keycloak_realm_user_enabled": (
+                "keycloak_realm_user_username",
+                "keycloak_realm_user_password",
+                "keycloak_realm_user_firstname",
+                "keycloak_realm_user_lastname",
+                "keycloak_realm_user_email",
+            ),
+        }
+        for main_key, required_keys in optionally_required_fields.items():
+            if not values[main_key]:
+                continue
+            for required_key in required_keys:
+                if required_key not in values:
+                    raise ValueError(f"{required_key} not set")
+                if values[required_key] is None:
+                    raise ValueError(f"{required_key} is None")
+        return values
+
+
+@lru_cache(maxsize=None)
+def get_settings() -> Settings:
+    return Settings()
+
+
+def read_file(path: FilePath) -> str:
+    with open(path) as template_file:
+        return template_file.read()
+
+
+def write_file(path: Path, contents: str) -> None:
+    with open(path, "w") as output_file:
+        output_file.write(contents)
+
+
+def generate_file(template_path: FilePath, output_path: Path, dry_run: bool) -> None:
+    settings = get_settings()
+
+    template = Template(read_file(template_path))
+    result = template.render(**settings.dict())
+    # Verify that valid JSON was generated
+    json.loads(result)
+    # content = json.dumps(payload, indent=4, sort_keys=True)
+    if dry_run:
+        print(result)
+    else:
+        write_file(output_path, result)
+
+
+@click.command()
+@click.option(
+    "--keycloak_json_path",
+    type=click.Path(writable=True, dir_okay=False),
+    default="/srv/keycloak.json",
+    help="Output file location for keycloak.json",
+    show_default=True,
+    envvar="KEYCLOAK_JSON_PATH",
+)
+@click.option(
+    "--keycloak_realm_json_path",
+    type=click.Path(writable=True, dir_okay=False),
+    default="/srv/keycloak-realm.json",
+    help="Output file location for keycloak-realm.json",
+    show_default=True,
+    envvar="KEYCLOAK_REALM_JSON_PATH",
+)
+@click.option(
+    "--keycloak_json_template_path",
+    type=click.Path(exists=True, dir_okay=False),
+    default="keycloak.json.j2",
+    help="Input template file location for keycloak.json",
+    show_default=True,
+    envvar="KEYCLOAK_JSON_TEMPLATE_PATH",
+)
+@click.option(
+    "--keycloak_realm_json_template_path",
+    type=click.Path(exists=True, dir_okay=False),
+    default="keycloak-realm.json.j2",
+    help="Input template file location for keycloak-realm.json",
+    show_default=True,
+    envvar="KEYCLOAK_REALM_JSON_TEMPLATE_PATH",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Print output to stdout instead of file",
+)
+def main(
+    keycloak_json_path: Path,
+    keycloak_realm_json_path: Path,
+    keycloak_json_template_path: Path,
+    keycloak_realm_json_template_path: Path,
+    dry_run: bool,
+) -> None:
+    generate_file(keycloak_json_template_path, keycloak_json_path, dry_run)
+    generate_file(
+        keycloak_realm_json_template_path,
+        keycloak_realm_json_path,
+        dry_run,
+    )
+
+
+if __name__ == "__main__":
+    main()

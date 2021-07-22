@@ -1,7 +1,13 @@
+{#
+SPDX-FileCopyrightText: Magenta ApS
+
+SPDX-License-Identifier: MPL-2.0
+#}
+
 {
   "realm": "mo",
-  "auth-server-url": "{{ KEYCLOAK_AUTH_SERVER_URL }}",
-  "ssl-required": "{{ KEYCLOAK_SSL_REQUIRED }}",
+  "auth-server-url": "{{ keycloak_auth_server_url }}",
+  "ssl-required": "{{ keycloak_ssl_required }}",
   "resource": "mo",
   "public-client": true,
   "confidential-port": 0

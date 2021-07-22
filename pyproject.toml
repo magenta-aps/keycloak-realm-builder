@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "keycloak-realm-builder"
+version = "0.0.1"
+description = "Build Keycloak JSON configuration files from Jinja2 templates and environment variables"
+authors = ["Magenta <info@magenta.dk>"]
+license = "MPL-2.0"
+readme = "README.md"
+homepage = "https://magenta.dk/"
+repository = "https://git.magenta.dk/rammearkitektur/keycloak-realm-builder"
+keywords = ["os2mo", "keycloak"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pydantic = {extras = ["email"], version = "^1.8.2"}
+python-dateutil = "2.8.1"
+click = "^8.0.1"
+Jinja2 = "^3.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "6.2.3"
+black = "21.4b2"
+flake8 = "3.9.1"
+mypy = "0.812"
+reorder-python-imports = "^2.5.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

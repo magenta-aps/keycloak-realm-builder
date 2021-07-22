@@ -1,11 +1,6 @@
 # SPDX-FileCopyrightText: 2019-2020 Magenta ApS
 # SPDX-License-Identifier: MPL-2.0
 
-################################################################################
-# Changes to this file requires approval from Labs. Please add a person from   #
-# Labs as required approval to your MR if you have any changes.                #
-################################################################################
-
 # For `docker push` to work, the following envionment variables have to set in
 # the Gitlab UI.
 # RELEASE_REGISTRY_USER
@@ -16,7 +11,7 @@ stages:
   # build stage is not blocked by lint stage, as we have a DAG:
   # https://docs.gitlab.com/ee/ci/directed_acyclic_graph/index.html
   - build
-  # - test
+  - test
   - release
 
 variables:
@@ -30,6 +25,16 @@ variables:
   IMAGE_RC: ${RELEASE_REGISTRY_IMAGE}:rc
   IMAGE_VERSION: ${RELEASE_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
   IMAGE_LATEST: ${RELEASE_REGISTRY_IMAGE}:latest
+
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
+
+cache:
+  key: "${CI_JOB_NAME}"
+  paths:
+    - .venv/
+    - .cache/pip
+    - .cache/pre-commit
 
 
 # Only run pipeline when pushing a tag or a branch.
@@ -48,31 +53,20 @@ workflow:
 .lint-default: &lint-default
   stage: lint
   needs: []
-  image: python:3.8
-  services: []
   tags:
     - docker
-
-
-Lint Dockerfiles:
-  <<: *lint-default
-  image: hadolint/hadolint:latest-debian
+  image: python:3.8
   before_script:
-    - apt-get -y update
-    - apt-get -y install --no-install-recommends git
-  script:
-    - git ls-files --exclude='Dockerfile*' --ignored | xargs --max-lines=1 hadolint
+    - pip install poetry pre-commit
+    - poetry --version
+    - poetry config virtualenvs.in-project true
+    - poetry install -vv
+    - pre-commit install
 
-
-Lint shell scripts:
+lint-all:
   <<: *lint-default
-  image: koalaman/shellcheck-alpine:latest
-  before_script:
-    - apk update
-    - apk add git
   script:
-    - git ls-files --exclude='*.sh' --ignored | xargs shellcheck
-
+    - pre-commit run --all-files
 
 # Build stage
 #############
@@ -95,12 +89,25 @@ Build RealmBuilder:
       --destination=${IMAGE_SHA}
 
 
+# Test stage
+############
+
+Test RealmBuilder:
+  stage: test
+  needs: ["Build RealmBuilder"]
+  image:
+    name: ${IMAGE_SHA}
+  tags:
+    - docker
+  script:
+    - python main.py --dry-run
+
 # Release stage
 ###############
 
 .release-default: &release-default
   stage: release
-  needs: ["Build RealmBuilder"]
+  needs: ["Build RealmBuilder", "Test RealmBuilder"]
   image: alpine
   variables:
     GIT_STRATEGY: none # We do not need the source code
