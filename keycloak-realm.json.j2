@@ -1039,7 +1039,7 @@ SPDX-License-Identifier: MPL-2.0
         "allowCreate": "true",
         "authnContextComparisonType": "exact",
         "encryptionPublicKey": "{{ keycloak_idp_encryption_key }}",
-        "entityId": "http://localhost:8081/auth/realms/mo",
+        "entityId": "{{ keycloak_idp_entity_id }}/auth/realms/mo",
         "loginHint": "false",
         "nameIDPolicyFormat": "{{ keycloak_idp_name_id_policy_format }}",
         "postBindingAuthnRequest": "true",

@@ -69,6 +69,7 @@ class Settings(BaseSettings):
     keycloak_idp_name_id_policy_format: str = (
         "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
     )
+    keycloak_idp_entity_id: Optional[AnyHttpUrl]
     keycloak_idp_logout_service_url: Optional[AnyHttpUrl]
     keycloak_idp_signon_service_url: Optional[AnyHttpUrl]
 
@@ -88,6 +89,7 @@ class Settings(BaseSettings):
             "keycloak_idp_enable": (
                 "keycloak_idp_encryption_key",
                 "keycloak_idp_signing_certificate",
+                "keycloak_idp_entity_id",
                 "keycloak_idp_logout_service_url",
                 "keycloak_idp_signon_service_url",
             ),
