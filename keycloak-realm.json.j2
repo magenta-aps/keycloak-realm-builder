@@ -358,10 +358,10 @@ SPDX-License-Identifier: MPL-2.0
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "{{ keycloak_mo_client_redirect_uri }}"
+        {{ keycloak_mo_client_redirect_uri | map('quote') | join(", ") }}
       ],
       "webOrigins": [
-        "{{ keycloak_mo_client_web_origin }}"
+        {{ keycloak_mo_client_web_origin | map('quote') | join(", ") }}
       ],
       "notBefore": 0,
       "bearerOnly": false,

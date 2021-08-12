@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Literal
 from typing import Optional
+from typing import Union
 from uuid import UUID
 from uuid import uuid4
 
@@ -58,14 +60,14 @@ class Settings(BaseSettings):
 
     # Frontend page that Keycloak is allowed to redirect users back to after they
     # have authenticated successfully in Keycloak
-    keycloak_mo_client_redirect_uri: AnyHttpUrl = parse_obj_as(
-        AnyHttpUrl, "http://localhost:5001/*"
-    )
+    keycloak_mo_client_redirect_uri: List[Union[AnyHttpUrl, Literal['*']]] = [
+        parse_obj_as(AnyHttpUrl, "http://localhost:5001/*")
+    ]
 
     # Allowed CORS origins
-    keycloak_mo_client_web_origin: AnyHttpUrl = parse_obj_as(
-        AnyHttpUrl, "http://localhost:5001"
-    )
+    keycloak_mo_client_web_origin: List[Union[AnyHttpUrl, Literal['*']]] = [
+        parse_obj_as(AnyHttpUrl, "http://localhost:5001")
+    ]
 
     # Toggles DIPEX client enablement. If non-user clients should be allowed to
     # contact Keycloak, the DIPEX client can be used. The client uses a
