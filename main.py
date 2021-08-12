@@ -60,12 +60,12 @@ class Settings(BaseSettings):
 
     # Frontend page that Keycloak is allowed to redirect users back to after they
     # have authenticated successfully in Keycloak
-    keycloak_mo_client_redirect_uri: List[Union[AnyHttpUrl, Literal['*']]] = [
+    keycloak_mo_client_redirect_uri: List[Union[AnyHttpUrl, Literal["*"]]] = [
         parse_obj_as(AnyHttpUrl, "http://localhost:5001/*")
     ]
 
     # Allowed CORS origins
-    keycloak_mo_client_web_origin: List[Union[AnyHttpUrl, Literal['*']]] = [
+    keycloak_mo_client_web_origin: List[Union[AnyHttpUrl, Literal["*"]]] = [
         parse_obj_as(AnyHttpUrl, "http://localhost:5001")
     ]
 
