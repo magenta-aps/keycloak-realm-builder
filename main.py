@@ -2,20 +2,50 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
+from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Optional
+from uuid import UUID
+from uuid import uuid4
 
 import click
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
 from jinja2 import Template
 from pydantic import AnyHttpUrl
+from pydantic import BaseModel
 from pydantic import BaseSettings
 from pydantic import EmailStr
+from pydantic import Field
 from pydantic import FilePath
 from pydantic import parse_obj_as
 from pydantic import root_validator
+from pydantic import validator
+
+
+class Roles(str, Enum):
+    admin = "admin"
+    owner = "owner"
+
+
+class KeycloakUser(BaseModel):
+    username: str
+    password: str
+    firstname: str
+    lastname: str
+    email: EmailStr
+    uuid: UUID = Field(None)
+    roles: List[Roles] = []
+    enabled: bool = True
+
+    # Autogenerate UUID if necessary
+    @validator("uuid", pre=True, always=True)
+    def set_uuid(cls, _uuid: Optional[UUID]) -> UUID:
+        return _uuid or uuid4()
 
 
 class Settings(BaseSettings):
@@ -50,16 +80,12 @@ class Settings(BaseSettings):
     #       tests/manual/keycloak-client-secret.py
     keycloak_dipex_client_secret: Optional[str]
 
-    # If enabled the MO realm will have the user below auto-provisioned
+    # The MO realm will have the users below auto-provisioned
     # which can be handy for testing purposes
-    keycloak_realm_user_enabled: bool = False
-    keycloak_realm_user_username: Optional[str]
-    keycloak_realm_user_password: Optional[str]
-    keycloak_realm_user_firstname: Optional[str]
-    keycloak_realm_user_lastname: Optional[str]
-    keycloak_realm_user_email: Optional[EmailStr]
+    keycloak_realm_users: Optional[List[KeycloakUser]] = []
 
-    # More to come when RBAC will be enabled...
+    # RBAC
+    keycloak_rbac_enabled: bool = False
 
     # IDP Configuration
     keycloak_idp_enable: bool = False
@@ -72,10 +98,6 @@ class Settings(BaseSettings):
     keycloak_idp_entity_id: Optional[AnyHttpUrl]
     keycloak_idp_logout_service_url: Optional[AnyHttpUrl]
     keycloak_idp_signon_service_url: Optional[AnyHttpUrl]
-
-    keycloak_auth_server_url: AnyHttpUrl = parse_obj_as(
-        AnyHttpUrl, "http://localhost:8081/auth/"
-    )
 
     # Specifies whether SSL is required for Keycloak requests. Can be one of
     # "all", "external" or "none". The options are further described here:
@@ -94,13 +116,6 @@ class Settings(BaseSettings):
                 "keycloak_idp_signon_service_url",
             ),
             "keycloak_dipex_client_enabled": ("keycloak_dipex_client_secret",),
-            "keycloak_realm_user_enabled": (
-                "keycloak_realm_user_username",
-                "keycloak_realm_user_password",
-                "keycloak_realm_user_firstname",
-                "keycloak_realm_user_lastname",
-                "keycloak_realm_user_email",
-            ),
         }
         for main_key, required_keys in optionally_required_fields.items():
             if not values[main_key]:
@@ -113,14 +128,23 @@ class Settings(BaseSettings):
         return values
 
 
+def quote(s: str) -> str:
+    """
+    Template filter function adding quotes
+    """
+    return f'"{s}"'
+
+
 @lru_cache(maxsize=None)
 def get_settings() -> Settings:
     return Settings()
 
 
-def read_file(path: FilePath) -> str:
-    with open(path) as template_file:
-        return template_file.read()
+def get_template(path: FilePath) -> Template:
+    loader = FileSystemLoader(searchpath=".")
+    env = Environment(loader=loader)
+    env.filters["quote"] = quote
+    return env.get_template(str(path))
 
 
 def write_file(path: Path, contents: str) -> None:
@@ -131,7 +155,7 @@ def write_file(path: Path, contents: str) -> None:
 def generate_file(template_path: FilePath, output_path: Path, dry_run: bool) -> None:
     settings = get_settings()
 
-    template = Template(read_file(template_path))
+    template = get_template(template_path)
     result = template.render(**settings.dict())
     # Verify that valid JSON was generated
     json.loads(result)
@@ -144,28 +168,12 @@ def generate_file(template_path: FilePath, output_path: Path, dry_run: bool) -> 
 
 @click.command()
 @click.option(
-    "--keycloak_json_path",
-    type=click.Path(writable=True, dir_okay=False),
-    default="/srv/keycloak.json",
-    help="Output file location for keycloak.json",
-    show_default=True,
-    envvar="KEYCLOAK_JSON_PATH",
-)
-@click.option(
     "--keycloak_realm_json_path",
     type=click.Path(writable=True, dir_okay=False),
     default="/srv/keycloak-realm.json",
     help="Output file location for keycloak-realm.json",
     show_default=True,
     envvar="KEYCLOAK_REALM_JSON_PATH",
-)
-@click.option(
-    "--keycloak_json_template_path",
-    type=click.Path(exists=True, dir_okay=False),
-    default="keycloak.json.j2",
-    help="Input template file location for keycloak.json",
-    show_default=True,
-    envvar="KEYCLOAK_JSON_TEMPLATE_PATH",
 )
 @click.option(
     "--keycloak_realm_json_template_path",
@@ -182,13 +190,10 @@ def generate_file(template_path: FilePath, output_path: Path, dry_run: bool) -> 
     help="Print output to stdout instead of file",
 )
 def main(
-    keycloak_json_path: Path,
     keycloak_realm_json_path: Path,
-    keycloak_json_template_path: Path,
     keycloak_realm_json_template_path: Path,
     dry_run: bool,
 ) -> None:
-    generate_file(keycloak_json_template_path, keycloak_json_path, dry_run)
     generate_file(
         keycloak_realm_json_template_path,
         keycloak_realm_json_path,

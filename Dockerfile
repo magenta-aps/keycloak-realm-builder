@@ -14,7 +14,6 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-dev
 
 WORKDIR /app
-COPY keycloak.json.j2 .
 COPY keycloak-realm.json.j2 .
 COPY main.py .
 CMD [ "python", "./main.py" ]

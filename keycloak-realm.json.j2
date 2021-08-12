@@ -278,7 +278,8 @@ SPDX-License-Identifier: MPL-2.0
         "web-origins",
         "roles",
         "profile",
-        "email"
+        "email",
+        "uuid"
       ],
       "optionalClientScopes": [
         "address",
@@ -772,6 +773,33 @@ SPDX-License-Identifier: MPL-2.0
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "groups",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3f184a07-2976-45a1-a4d6-87b2924ec159",
+      "name": "uuid",
+      "description": "OS2mo UUID",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "id": "5630b6ec-7b53-445b-9e87-c0db463dd6b9",
+          "name": "UUID Mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "uuid",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "uuid",
             "jsonType.label": "String"
           }
         }
@@ -1915,25 +1943,52 @@ SPDX-License-Identifier: MPL-2.0
     "cibaInterval": "5"
   },
   "keycloakVersion": "{{ keycloak_version }}",
-  {%- if keycloak_realm_user_enabled %}
   "users": [
+    {%- for user in keycloak_realm_users %}
     {
-      "id": "c420894f-36ba-4cd5-b4f8-1b24bd8c53db",
-      "username": "{{ keycloak_realm_user_username }}",
-      "firstName": "{{ keycloak_realm_user_firstname }}",
-      "lastName": "{{ keycloak_realm_user_lastname }}",
-      "email": "{{ keycloak_realm_user_email }}",
-      "enabled": {{ keycloak_realm_user_enabled|tojson }},
+      "username": "{{ user['username'] }}",
+      "firstName": "{{ user['firstname'] }}",
+      "lastName": "{{ user['lastname'] }}",
+      "email": "{{ user['email'] }}",
+      "enabled": {{ user['enabled'] | tojson }},
       "totp": false,
       "emailVerified": false,
       "credentials": [
         {
           "type": "password",
-          "value": "{{ keycloak_realm_user_password }}"
+          "value": "{{ user['password'] }}"
         }
-      ]
-    }
+      ],
+      "attributes": {
+        "uuid": "{{ user['uuid'] }}"
+      },
+      "realmRoles": [{{ user['roles'] | map('quote') | join(", ") }}]
+    }{%- if not loop.last -%},{% endif %}
+    {%- endfor %}
   ],
+  {%- if keycloak_rbac_enabled %}
+  "roles": {
+    "realm": [
+      {
+        "id": "7ddefa6a-8bcc-46d7-8b95-874e9ede0a03",
+        "name": "admin",
+        "description": "Write access to everything in MO",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "mo",
+        "attributes": {}
+      },
+      {
+        "id": "013d5bc9-8e74-42c1-8789-baa05b7d5a4c",
+        "name": "owner",
+        "description": "Only write access to units of which the user is owner in MO",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "mo",
+        "attributes": {}
+      }
+    ]
+  },
   {%- endif %}
   "userManagedAccessAllowed": false
 }
