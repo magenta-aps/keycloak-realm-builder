@@ -495,7 +495,7 @@ SPDX-License-Identifier: MPL-2.0
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
-        "access.token.lifespan": "{{ keycloak_dipex_token_lifespan }}",
+        "access.token.lifespan": "{{ keycloak_dipex_token_lifespan|string }}",
         "saml.assertion.signature": "false",
         "saml.force.post.binding": "false",
         "saml.multivalued.roles": "false",

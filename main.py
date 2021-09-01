@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
-import re
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
@@ -26,6 +25,7 @@ from pydantic import EmailStr
 from pydantic import Field
 from pydantic import FilePath
 from pydantic import parse_obj_as
+from pydantic import PositiveInt
 from pydantic import root_validator
 from pydantic import validator
 
@@ -88,7 +88,7 @@ class Settings(BaseSettings):
     # Fix 45298: We need longer access token lifespan for DIPEX
     # This should be set to the default of 5 minutes when we fix our clients
     # Default: 43200 seconds, i.e. 12 hours
-    keycloak_dipex_token_lifespan: str = "43200"
+    keycloak_dipex_token_lifespan: PositiveInt = 43200
 
     # DIPEX client secret that can be used to obtain an OIDC token
     # For an example, see:
@@ -149,12 +149,6 @@ class Settings(BaseSettings):
                 if values[required_key] is None:
                     raise ValueError(f"{required_key} is None")
         return values
-
-    @validator("keycloak_dipex_token_lifespan")
-    def validate_lifespan(cls, lifespan: str) -> str:
-        if not re.match(r"^\d+$", lifespan):
-            raise ValueError("Invalid lifespan given")
-        return lifespan
 
 
 def quote(s: str) -> str:
