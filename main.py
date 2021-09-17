@@ -124,7 +124,8 @@ class Settings(BaseSettings):
     # Specifies whether SSL is required for Keycloak requests. Can be one of
     # "all", "external" or "none". The options are further described here:
     # https://www.keycloak.org/docs/latest/server_installation/#_setting_up_ssl
-    keycloak_ssl_required: str = "all"
+    keycloak_ssl_required_mo: str = "all"
+    keycloak_ssl_required_lora: str = "all"
 
     # LoRa
     keycloak_lora_realm_enabled: bool = False
