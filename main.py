@@ -130,6 +130,7 @@ class Settings(BaseSettings):
     # LoRa
     keycloak_lora_realm_enabled: bool = False
     keycloak_lora_client_secret: Optional[str]
+    keycloak_lora_token_lifespan: PositiveInt = 300
 
     @root_validator
     def optionally_required(cls, values: Dict[str, Any]) -> Dict[str, Any]:

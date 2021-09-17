@@ -2685,6 +2685,7 @@ SPDX-License-Identifier: MPL-2.0
         "frontchannelLogout": false,
         "protocol": "openid-connect",
         "attributes": {
+          "access.token.lifespan": "{{ keycloak_lora_token_lifespan }}",
           "id.token.as.detached.signature": "false",
           "saml.assertion.signature": "false",
           "saml.force.post.binding": "false",
