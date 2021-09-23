@@ -74,6 +74,9 @@ class Settings(BaseSettings):
         parse_obj_as(AnyHttpUrl, "http://localhost:5001")
     ]
 
+    # MO token lifespan
+    keycloak_mo_token_lifespan: PositiveInt = 300
+
     keycloak_egir_client_web_origin: List[Union[AnyHttpUrl, Literal["*"]]] = [
         parse_obj_as(AnyHttpUrl, "http://localhost:5001")
     ]
