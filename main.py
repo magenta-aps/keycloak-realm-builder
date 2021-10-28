@@ -51,6 +51,12 @@ class KeycloakUser(BaseModel):
         return _uuid or uuid4()
 
 
+class KeycloakClient(BaseModel):
+    client_id: str
+    client_secret: str
+    token_lifespan: PositiveInt = 300
+
+
 class Settings(BaseSettings):
     # Keycloak version
     # Note: We currently use version 13.0.0 in the dev env
@@ -58,6 +64,8 @@ class Settings(BaseSettings):
 
     # Display name shown on the main Keycloak user login page
     keycloak_realm_display_name: str = "OS2mo"
+
+    keycloak_api_clients: List[KeycloakClient] = []
 
     # Frontend page(s) that Keycloak is allowed to redirect users back to after they
     # have authenticated successfully in Keycloak
