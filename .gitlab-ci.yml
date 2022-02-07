@@ -100,10 +100,13 @@ Test RealmBuilder:
   needs: ["Build RealmBuilder"]
   image:
     name: ${IMAGE_SHA}
+    entrypoint: [""]
+  variables:
+    KEYCLOAK_ADMIN_PASSWORD: "123"
   tags:
     - docker
   script:
-    - python main.py --dry-run
+    - python3 main.py
 
 
 # Release stage
