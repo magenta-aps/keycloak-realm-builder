@@ -537,10 +537,11 @@ resource "keycloak_authentication_execution_config" "config" {
 
 # IDP
 resource "keycloak_saml_identity_provider" "adfs" {
-  count   = var.keycloak_idp_enable == true ? 1 : 0
-  realm   = keycloak_realm.mo.id
-  alias   = "saml"
-  enabled = var.keycloak_idp_enable
+  count     = var.keycloak_idp_enable == true ? 1 : 0
+  realm     = keycloak_realm.mo.id
+  alias     = "saml"
+  enabled   = var.keycloak_idp_enable
+  sync_mode = "FORCE"
 
   # TODO: encryption key?
   signing_certificate    = var.keycloak_idp_signing_certificate
@@ -554,4 +555,37 @@ resource "keycloak_saml_identity_provider" "adfs" {
   entity_id                  = var.keycloak_idp_entity_id
   single_sign_on_service_url = var.keycloak_idp_signon_service_url
   single_logout_service_url  = var.keycloak_idp_logout_service_url
+}
+
+# IDP RBAC mapper
+resource "keycloak_custom_identity_provider_mapper" "adfs_admin_role_mapper" {
+  count                    = var.keycloak_idp_enable == true ? 1 : 0
+  realm                    = keycloak_realm.mo.id
+  name                     = "admin-mapper"
+  identity_provider_alias  = keycloak_saml_identity_provider.adfs[0].alias
+  identity_provider_mapper = "saml-role-idp-mapper"
+
+  # extra_config with syncMode is required in Keycloak 10+
+  extra_config = {
+    syncMode          = "INHERIT"
+    "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
+    "attribute.value" = "os2mo-admin"
+    "role"            = "admin"
+  }
+}
+
+resource "keycloak_custom_identity_provider_mapper" "adfs_owner_role_mapper" {
+  count                    = var.keycloak_idp_enable == true ? 1 : 0
+  realm                    = keycloak_realm.mo.id
+  name                     = "owner-mapper"
+  identity_provider_alias  = keycloak_saml_identity_provider.adfs[0].alias
+  identity_provider_mapper = "saml-role-idp-mapper"
+
+  # extra_config with syncMode is required in Keycloak 10+
+  extra_config = {
+    syncMode          = "INHERIT"
+    "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
+    "attribute.value" = "os2mo-owner"
+    "role"            = "owner"
+  }
 }
