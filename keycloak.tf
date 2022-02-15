@@ -425,8 +425,8 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "mo_client_uuid_mapper
   client_id      = keycloak_openid_client.mo_frontend.id
   name           = "uuid-mapper"
 
-  user_attribute = "uuid"
-  claim_name     = "object-guid"
+  user_attribute = "object-guid"
+  claim_name     = "uuid"
 }
 
 resource "keycloak_openid_client" "egir" {
@@ -609,7 +609,7 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_object_guid_mapper" {
   extra_config = {
     syncMode          = "INHERIT"
     "attribute.name"  = "object-guid"
-    "user.attribute"  = "uuid"
+    "user.attribute"  = "object-guid"
     "role"            = "owner"
   }
 }
