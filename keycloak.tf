@@ -421,9 +421,9 @@ resource "keycloak_openid_client" "mo_frontend" {
 }
 
 resource "keycloak_openid_user_attribute_protocol_mapper" "mo_client_uuid_mapper" {
-  realm_id       = keycloak_realm.mo.id
-  client_id      = keycloak_openid_client.mo_frontend.id
-  name           = "uuid-mapper"
+  realm_id  = keycloak_realm.mo.id
+  client_id = keycloak_openid_client.mo_frontend.id
+  name      = "uuid-mapper"
 
   user_attribute = "object-guid"
   claim_name     = "uuid"
@@ -553,9 +553,9 @@ resource "keycloak_saml_identity_provider" "adfs" {
   sync_mode = "FORCE"
 
   # TODO: encryption key?
-  signing_certificate    = var.keycloak_idp_signing_certificate
-  want_assertions_signed = var.keycloak_idp_signed_requests
-  name_id_policy_format  = var.keycloak_idp_name_id_policy_format
+  signing_certificate   = var.keycloak_idp_signing_certificate
+  name_id_policy_format = var.keycloak_idp_name_id_policy_format
+  principal_type        = "SUBJECT"
 
   first_broker_login_flow_alias = keycloak_authentication_flow.mo_login_flow.alias
 
@@ -564,6 +564,9 @@ resource "keycloak_saml_identity_provider" "adfs" {
   entity_id                  = var.keycloak_idp_entity_id
   single_sign_on_service_url = var.keycloak_idp_signon_service_url
   single_logout_service_url  = var.keycloak_idp_logout_service_url
+
+  signature_algorithm = var.keycloak_idp_signed_requests == true ? "RSA_SHA256" : null
+
 }
 
 # IDP RBAC mapper
@@ -607,9 +610,9 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_object_guid_mapper" {
   identity_provider_mapper = "saml-user-attribute-idp-mapper"
 
   extra_config = {
-    syncMode          = "INHERIT"
-    "attribute.name"  = "object-guid"
-    "user.attribute"  = "object-guid"
-    "role"            = "owner"
+    syncMode         = "INHERIT"
+    "attribute.name" = "object-guid"
+    "user.attribute" = "object-guid"
+    "role"           = "owner"
   }
 }
