@@ -458,6 +458,13 @@ resource "keycloak_openid_client" "dipex" {
   client_secret = var.keycloak_dipex_client_secret
 }
 
+resource "keycloak_openid_client_service_account_realm_role" "dipex_admin_role" {
+  count                   = var.keycloak_dipex_client_enabled == true ? 1 : 0
+  realm_id                = keycloak_realm.mo.id
+  service_account_user_id = keycloak_openid_client.dipex[0].service_account_user_id
+  role                    = keycloak_role.admin.name
+}
+
 resource "keycloak_openid_client" "lora_dipex" {
   count     = var.keycloak_lora_dipex_client_enabled == true ? 1 : 0
   realm_id  = keycloak_realm.lora.id
@@ -530,6 +537,7 @@ resource "keycloak_authentication_execution" "mo_idp_browser_flow_idp_redirector
   authenticator     = "identity-provider-redirector"
   requirement       = "ALTERNATIVE"
   # Use depends_on to control ordering of executions
+  # We should always check for cookie before initiating login
   depends_on = [
     keycloak_authentication_execution.mo_idp_browser_flow_cookie
   ]
@@ -544,12 +552,14 @@ resource "keycloak_authentication_execution_config" "config" {
   }
 }
 
-# IDP
+# IdP broker
 resource "keycloak_saml_identity_provider" "adfs" {
   count     = var.keycloak_idp_enable == true ? 1 : 0
   realm     = keycloak_realm.mo.id
+  # Part of the metadata URL. Metadata needs to be reimported if changed.
   alias     = "saml"
   enabled   = var.keycloak_idp_enable
+  # Always force reimport of users to get updated groups for RBAC
   sync_mode = "FORCE"
 
   # TODO: encryption key?
@@ -569,7 +579,7 @@ resource "keycloak_saml_identity_provider" "adfs" {
 
 }
 
-# IDP RBAC mapper
+# IdP RBAC role mappers
 resource "keycloak_custom_identity_provider_mapper" "adfs_admin_role_mapper" {
   count                    = var.keycloak_idp_enable == true ? 1 : 0
   realm                    = keycloak_realm.mo.id
@@ -582,16 +592,8 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_admin_role_mapper" {
     syncMode          = "INHERIT"
     "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
     "attribute.value" = "os2mo-admin"
-    "role"            = "admin"
+    "role"            = keycloak_role.admin.name
   }
-}
-
-# Add Admin role to dipex client
-resource "keycloak_openid_client_service_account_realm_role" "dipex_admin_role" {
-  count                   = var.keycloak_dipex_client_enabled == true ? 1 : 0 
-  realm_id                = keycloak_realm.mo.id
-  service_account_user_id = keycloak_openid_client.dipex[0].service_account_user_id
-  role                    = keycloak_role.admin.name
 }
 
 resource "keycloak_custom_identity_provider_mapper" "adfs_owner_role_mapper" {
@@ -606,7 +608,7 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_owner_role_mapper" {
     syncMode          = "INHERIT"
     "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
     "attribute.value" = "os2mo-owner"
-    "role"            = "owner"
+    "role"            = keycloak_role.owner.name
   }
 }
 
@@ -621,6 +623,5 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_object_guid_mapper" {
     syncMode         = "INHERIT"
     "attribute.name" = "object-guid"
     "user.attribute" = "object-guid"
-    "role"           = "owner"
   }
 }
