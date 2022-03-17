@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+3.4.0 - 2022-03-17
+------------------
+
+[#48873] Add support for clock skew. Defaults to 10 seconds.
+
 3.3.3 - 2022-03-03
 ------------------
 
