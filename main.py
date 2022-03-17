@@ -105,6 +105,7 @@ class Settings(BaseSettings):
     keycloak_idp_entity_id: Optional[AnyHttpUrl]
     keycloak_idp_logout_service_url: Optional[AnyHttpUrl]
     keycloak_idp_signon_service_url: Optional[AnyHttpUrl]
+    keycloak_idp_clock_skew: int = 10
 
     # Specifies whether SSL is required for Keycloak requests. Can be one of
     # "all", "external" or "none". The options are further described here:

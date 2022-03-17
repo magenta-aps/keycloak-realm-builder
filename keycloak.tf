@@ -136,6 +136,11 @@ variable "keycloak_idp_signon_service_url" {
   description = ""
 }
 
+variable "keycloak_idp_clock_skew" {
+  type        = string
+  description = ""
+}
+
 variable "keycloak_ssl_required_mo" {
   type        = string
   description = ""
@@ -554,11 +559,11 @@ resource "keycloak_authentication_execution_config" "config" {
 
 # IdP broker
 resource "keycloak_saml_identity_provider" "adfs" {
-  count     = var.keycloak_idp_enable == true ? 1 : 0
-  realm     = keycloak_realm.mo.id
+  count = var.keycloak_idp_enable == true ? 1 : 0
+  realm = keycloak_realm.mo.id
   # Part of the metadata URL. Metadata needs to be reimported if changed.
-  alias     = "saml"
-  enabled   = var.keycloak_idp_enable
+  alias   = "saml"
+  enabled = var.keycloak_idp_enable
   # Always force reimport of users to get updated groups for RBAC
   sync_mode = "FORCE"
 
@@ -577,6 +582,9 @@ resource "keycloak_saml_identity_provider" "adfs" {
 
   signature_algorithm = var.keycloak_idp_signed_requests == true ? "RSA_SHA256" : null
 
+  extra_config = {
+    allowedClockSkew = var.keycloak_idp_clock_skew
+  }
 }
 
 # IdP RBAC role mappers
