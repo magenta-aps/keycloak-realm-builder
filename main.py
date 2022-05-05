@@ -149,6 +149,7 @@ class Settings(BaseSettings):
                 "keycloak_idp_signon_service_url",
             ),
             "keycloak_dipex_client_enabled": ("keycloak_dipex_client_secret",),
+            "keycloak_orgviewer_client_enabled": ("keycloak_orgviewer_client_secret",),
             "keycloak_egir_client_enabled": ("keycloak_egir_client_secret",),
             "keycloak_lora_realm_enabled": ("keycloak_lora_client_secret",),
             "keycloak_lora_dipex_client_enabled": (
