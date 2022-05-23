@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 terraform {
-  backend "pg" {}
   required_providers {
     keycloak = {
       source  = "mrparkers/keycloak"
