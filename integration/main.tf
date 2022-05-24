@@ -25,6 +25,7 @@ variable "admin_username" {
 variable "admin_password" {
   type        = string
   description = "Keycloak API admin password"
+  sensitive   = true
 }
 variable "url" {
   type        = string
@@ -46,6 +47,7 @@ variable "client_lifespan" {
 variable "client_secret" {
   type        = string
   description = "Preshared client secret. If not set, one will be generated and output as client_secret."
+  sensitive   = true
   default     = null
 }
 variable "client_roles" {
@@ -100,4 +102,5 @@ resource "keycloak_openid_client_service_account_realm_role" "client_role" {
 
 output "client_secret" {
   value = keycloak_openid_client.client.client_secret
+  sensitive = true
 }
