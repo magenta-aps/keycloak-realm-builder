@@ -45,13 +45,20 @@ variable "client_lifespan" {
 }
 variable "client_secret" {
   type        = string
-  description = "Preshared client secret"
+  description = "Preshared client secret. If not set, one will be generated and output as client_secret."
+  default     = null
 }
 variable "client_roles" {
   type        = set(string)
   description = "Set of roles to attach to the client"
   default     = []
 }
+
+resource "random_password" "client_secret" {
+  length  = 32
+  special = false
+}
+
 
 provider "keycloak" {
   client_id = var.admin_client_id
@@ -80,7 +87,7 @@ resource "keycloak_openid_client" "client" {
   service_accounts_enabled = true
   access_token_lifespan    = var.client_lifespan
 
-  client_secret = var.client_secret
+  client_secret = coalesce(var.client_secret, random_password.client_secret)
 }
 
 resource "keycloak_openid_client_service_account_realm_role" "client_role" {
@@ -89,4 +96,8 @@ resource "keycloak_openid_client_service_account_realm_role" "client_role" {
   realm_id                = data.keycloak_realm.mo.id
   service_account_user_id = keycloak_openid_client.client.service_account_user_id
   role                    = data.keycloak_role.roles[each.key].name
+}
+
+output "client_secret" {
+  value = keycloak_openid_client.client.client_secret
 }
