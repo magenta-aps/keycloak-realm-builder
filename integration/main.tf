@@ -87,7 +87,7 @@ resource "keycloak_openid_client" "client" {
   service_accounts_enabled = true
   access_token_lifespan    = var.client_lifespan
 
-  client_secret = coalesce(var.client_secret, random_password.client_secret)
+  client_secret = coalesce(var.client_secret, random_password.client_secret.result)
 }
 
 resource "keycloak_openid_client_service_account_realm_role" "client_role" {
