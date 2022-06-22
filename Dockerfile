@@ -10,8 +10,11 @@ RUN apk add python3 py3-pip
 RUN pip install --no-cache-dir click pydantic[email]
 
 WORKDIR /app
-COPY main.py .
+
 COPY keycloak.tf .
 COPY .terraform.lock.hcl .
+RUN terraform init -backend=false
+
+COPY main.py .
 COPY run.sh .
 ENTRYPOINT [ "sh", "run.sh" ]
