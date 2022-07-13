@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keycloak-realm-builder"
-version = "3.10.0"
+version = "3.11.0"
 description = "Build Keycloak JSON configuration files from Jinja2 templates and environment variables"
 authors = ["Magenta <info@magenta.dk>"]
 license = "MPL-2.0"
