@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Magenta ApS
 #
 # SPDX-License-Identifier: MPL-2.0
-from enum import Enum
 from functools import lru_cache
 from typing import Any
 from typing import Dict
@@ -20,18 +19,13 @@ from pydantic import PositiveInt
 from pydantic import root_validator
 
 
-class Roles(str, Enum):
-    admin = "admin"
-    owner = "owner"
-
-
 class KeycloakUser(BaseModel):
     username: str
     password: str
     firstname: str
     lastname: str
     email: EmailStr
-    roles: List[Roles] = []
+    roles: List[str] = []
     enabled: bool = True
 
 
