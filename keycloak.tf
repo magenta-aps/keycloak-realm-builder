@@ -515,6 +515,10 @@ resource "keycloak_openid_client" "orgviewer" {
   service_accounts_enabled = true
   access_token_lifespan    = var.keycloak_orgviewer_token_lifespan
 
+  standard_flow_enabled = true
+  valid_redirect_uris   = ["*"]
+  web_origins           = ["*"]
+
   client_secret = var.keycloak_orgviewer_client_secret
 }
 
