@@ -65,7 +65,7 @@ include:
   needs: []
   tags:
     - docker
-  image: python:3.8
+  image: python:3.10
   before_script:
     - pip install poetry pre-commit
     - poetry --version
