@@ -55,6 +55,21 @@ variable "client_roles" {
   description = "Set of roles to attach to the client"
   default     = []
 }
+variable "client_standard_flow_enabled" {
+  type        = bool
+  description = "Whether Standard Flow is enabled"
+  default     = false
+}
+variable "client_valid_redirect_urls" {
+  type        = list(string)
+  description = "Must be set if Standard Flow is enabled"
+  default     = []
+}
+variable "client_web_origins" {
+  type        = list(string)
+  description = "List of allowed CORS origins"
+  default     = []
+}
 
 resource "random_password" "client_secret" {
   length  = 32
@@ -88,6 +103,10 @@ resource "keycloak_openid_client" "client" {
   access_type              = "CONFIDENTIAL"
   service_accounts_enabled = true
   access_token_lifespan    = var.client_lifespan
+
+  standard_flow_enabled    = var.client_standard_flow_enabled
+  valid_redirect_uris      = var.client_valid_redirect_urls
+  web_origins              = var.client_web_origins
 
   client_secret = coalesce(var.client_secret, random_password.client_secret.result)
 }
