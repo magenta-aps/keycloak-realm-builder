@@ -8,6 +8,8 @@ terraform {
       version = "3.6.0"
     }
   }
+
+  backend "pg" {}
 }
 
 # REST API Credentials
