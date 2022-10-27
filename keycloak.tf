@@ -100,6 +100,7 @@ variable "keycloak_realm_users" {
     firstname = string
     lastname  = string
     email     = string
+    uuid      = optional(string, "")
     roles     = list(string)
     enabled   = bool
   }))
@@ -556,6 +557,10 @@ resource "keycloak_user" "mo_user" {
 
   initial_password {
     value = each.value.password
+  }
+
+  attributes = {
+    object-guid = each.value.uuid
   }
 
   for_each = { for user in var.keycloak_realm_users : user.username => user }
