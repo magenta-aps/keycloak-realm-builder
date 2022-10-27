@@ -25,6 +25,7 @@ class KeycloakUser(BaseModel):
     firstname: str
     lastname: str
     email: EmailStr
+    uuid: str = ""
     roles: List[str] = []
     enabled: bool = True
 
