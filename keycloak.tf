@@ -100,7 +100,7 @@ variable "keycloak_realm_users" {
     firstname = string
     lastname  = string
     email     = string
-    uuid      = optional(string, "")
+    uuid      = optional(string, null)
     roles     = list(string)
     enabled   = bool
   }))
