@@ -44,7 +44,7 @@ include:
     file: /gitlab-ci-templates/common/autopub.v1.yml
   - project: labs/salt-automation
     ref: master
-    file: /gitlab-ci-templates/common/docker-build-meta.v1.yml
+    file: /gitlab-ci-templates/common/docker-build-meta.v2.yml
   - project: labs/salt-automation
     ref: master
     file: /gitlab-ci-templates/common/docker-release-meta.v1.yml
@@ -63,8 +63,6 @@ include:
 .lint-default: &lint-default
   stage: lint
   needs: []
-  tags:
-    - docker
   image: python:3.10
   before_script:
     - pip install poetry pre-commit
@@ -107,8 +105,6 @@ Test RealmBuilder:
     entrypoint: [""]
   variables:
     KEYCLOAK_ADMIN_PASSWORD: "123"
-  tags:
-    - docker
   script:
     - python3 main.py
 
