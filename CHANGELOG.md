@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+3.16.3 - 2023-04-13
+-------------------
+
+[#55659] Force release for integration builder deployment
+
 3.16.2 - 2022-10-27
 -------------------
 
