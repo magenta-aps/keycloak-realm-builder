@@ -140,20 +140,39 @@ Release IntegrationBuilder version:
 # Deploy stage
 ##############
 
-Deploy to Dev:
+Deploy RealmBuilder to Dev:
   extends: .release-to-dev
   needs: ["Release RealmBuilder version"]
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-dev
 
-Deploy to Test:
+Deploy RealmBuilder to Test:
   extends: .release-to-test
   needs: []
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-test
 
-Deploy to Prod:
+Deploy RealmBuilder to Prod:
   extends: .release-to-prod
   needs: []
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-prod
+
+
+Deploy IntegrationBuilder to Dev:
+  extends: .release-to-dev
+  needs: ["Release IntegrationBuilder version"]
+  variables:
+    ENDPOINT: os2mo/flux/integrationbuilder/update-dev
+
+Deploy IntegrationBuilder to Test:
+  extends: .release-to-test
+  needs: []
+  variables:
+    ENDPOINT: os2mo/flux/integrationbuilder/update-test
+
+Deploy IntegrationBuilder to Prod:
+  extends: .release-to-prod
+  needs: []
+  variables:
+    ENDPOINT: os2mo/flux/integrationbuilder/update-prod
