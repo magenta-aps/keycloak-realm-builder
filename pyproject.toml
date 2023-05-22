@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keycloak-realm-builder"
-version = "3.16.3"
+version = "0.0.0"  # versioning handled by conventional commits
 description = "Build Keycloak JSON configuration files from Jinja2 templates and environment variables"
 authors = ["Magenta <info@magenta.dk>"]
 license = "MPL-2.0"
@@ -22,10 +22,6 @@ pytest = "^7.3.0"
 pytest-cov = "^4.0.0"
 pytest-split = "^0.8.1"
 reorder-python-imports = "^3.9.0"
-
-[tool.autopub]
-git-username = "MagentaBot"
-git-email = "info@magenta.dk"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
