@@ -117,6 +117,7 @@ variable "keycloak_idp_enable" {
 variable "keycloak_idp_encryption_key" {
   type        = string
   description = ""
+  default = ""
 }
 
 variable "keycloak_idp_signing_certificate" {

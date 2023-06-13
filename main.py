@@ -137,7 +137,6 @@ class Settings(BaseSettings):
         """Check that derived keys are set if master switch is set."""
         optionally_required_fields = {
             "keycloak_idp_enable": (
-                "keycloak_idp_encryption_key",
                 "keycloak_idp_signing_certificate",
                 "keycloak_idp_entity_id",
                 "keycloak_idp_logout_service_url",
