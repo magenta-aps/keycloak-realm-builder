@@ -151,6 +151,25 @@ Deploy RealmBuilder to Prod:
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-prod
 
+Deploy RealmBuilder to Flux Dev:
+  extends: .release-to-dev
+  needs: ["Release RealmBuilder version"]
+  variables:
+    ENDPOINT: os2mo/salt/realmbuilder/update-dev
+
+Deploy RealmBuilder to Flux Test:
+  extends: .release-to-test
+  needs: []
+  variables:
+    ENDPOINT: os2mo/salt/realmbuilder/update-test
+
+Deploy RealmBuilder to Flux Prod:
+  extends: .release-to-prod
+  needs: []
+  variables:
+    ENDPOINT: os2mo/salt/realmbuilder/update-prod
+
+
 
 Deploy IntegrationBuilder to Dev:
   extends: .release-to-dev
