@@ -547,6 +547,7 @@ resource "keycloak_saml_identity_provider" "adfs" {
   sync_mode = "FORCE"
 
   # TODO: encryption key?
+  validate_signature    = true
   signing_certificate   = var.keycloak_idp_signing_certificate
   name_id_policy_format = var.keycloak_idp_name_id_policy_format
   principal_type        = "SUBJECT"
