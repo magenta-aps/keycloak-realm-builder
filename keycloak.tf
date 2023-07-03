@@ -6,7 +6,7 @@ terraform {
   required_providers {
     keycloak = {
       source  = "mrparkers/keycloak"
-      version = "3.6.0"
+      version = "4.3.1"
     }
   }
 }
@@ -218,6 +218,7 @@ provider "keycloak" {
   username  = var.keycloak_admin_username
   password  = var.keycloak_admin_password
   url       = var.keycloak_url
+  base_path = "/auth"
 }
 
 # Realms
