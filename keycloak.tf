@@ -241,8 +241,8 @@ locals {
   collections = [
     "address", "association", "class", "configuration", "employee",
     "engagement_association", "engagement", "facet", "file", "health",
-    "itsystem", "ituser", "kle", "leave", "manager", "org", "org_unit",
-    "related_unit", "role", "version"
+    "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
+    "org_unit", "related_unit", "role", "version"
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
