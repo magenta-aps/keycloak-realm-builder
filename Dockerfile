@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 RUN apk add python3 py3-pip
-RUN pip install --no-cache-dir click pydantic[email]
+RUN pip install --no-cache-dir click pydantic[email]==1.10.12
 
 WORKDIR /app
 
