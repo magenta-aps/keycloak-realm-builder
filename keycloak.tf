@@ -365,6 +365,7 @@ resource "keycloak_openid_client" "mo_frontend" {
   name                  = "OS2mo Frontend"
   access_type           = "PUBLIC"
   standard_flow_enabled = true
+  direct_access_grants_enabled = true
   access_token_lifespan = var.keycloak_mo_token_lifespan
 
   valid_redirect_uris = var.keycloak_mo_client_redirect_uri
