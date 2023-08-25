@@ -55,10 +55,6 @@ class Settings(BaseSettings):
         parse_obj_as(AnyHttpUrl, "http://localhost:5001/*")
     ]
 
-    keycloak_egir_client_redirect_uri: List[Union[AnyHttpUrl, Literal["*"]]] = [
-        parse_obj_as(AnyHttpUrl, "http://localhost:5001/*")
-    ]
-
     # Allowed CORS origins
     keycloak_mo_client_web_origin: List[Union[AnyHttpUrl, Literal["*"]]] = [
         parse_obj_as(AnyHttpUrl, "http://localhost:5001")
@@ -66,10 +62,6 @@ class Settings(BaseSettings):
 
     # MO token lifespan
     keycloak_mo_token_lifespan: PositiveInt = 300
-
-    keycloak_egir_client_web_origin: List[Union[AnyHttpUrl, Literal["*"]]] = [
-        parse_obj_as(AnyHttpUrl, "http://localhost:5001")
-    ]
 
     # Toggles DIPEX client enablement. If non-user clients should be allowed to
     # contact Keycloak, the DIPEX client can be used. The client uses a
@@ -96,12 +88,6 @@ class Settings(BaseSettings):
     keycloak_orgviewer_token_lifespan: PositiveInt = 60 * 60 * 24 * 365
     keycloak_orgviewer_client_secret: Optional[str]
 
-    # Toggles EGIR client enablement
-    keycloak_egir_client_enabled: bool = False
-
-    # The EGIR client secret
-    keycloak_egir_client_secret: Optional[str]
-
     # The MO realm will have the users below auto-provisioned
     # which can be handy for testing purposes
     keycloak_realm_users: Optional[List[KeycloakUser]] = []
@@ -126,11 +112,6 @@ class Settings(BaseSettings):
 
     # LoRa
     keycloak_lora_realm_enabled: bool = False
-    keycloak_lora_client_secret: Optional[str]
-    keycloak_lora_dipex_client_enabled: bool = False
-    keycloak_lora_dipex_client_secret: Optional[str]
-    keycloak_lora_token_lifespan: PositiveInt = 300
-    keycloak_lora_dipex_token_lifespan: PositiveInt = 300
 
     @root_validator
     def optionally_required(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -144,11 +125,6 @@ class Settings(BaseSettings):
             ),
             "keycloak_dipex_client_enabled": ("keycloak_dipex_client_secret",),
             "keycloak_orgviewer_client_enabled": ("keycloak_orgviewer_client_secret",),
-            "keycloak_egir_client_enabled": ("keycloak_egir_client_secret",),
-            "keycloak_lora_realm_enabled": ("keycloak_lora_client_secret",),
-            "keycloak_lora_dipex_client_enabled": (
-                "keycloak_lora_dipex_client_secret",
-            ),
         }
         for main_key, required_keys in optionally_required_fields.items():
             if not values[main_key]:

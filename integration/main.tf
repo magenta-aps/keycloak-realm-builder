@@ -72,6 +72,13 @@ variable "client_web_origins" {
   description = "List of allowed CORS origins"
   default     = []
 }
+variable "client_uuid" {
+  type        = string
+  description = ""
+  default     = null
+}
+
+
 
 resource "random_password" "client_secret" {
   length  = 32
@@ -124,4 +131,15 @@ resource "keycloak_openid_client_service_account_realm_role" "client_role" {
 output "client_secret" {
   value = keycloak_openid_client.client.client_secret
   sensitive = true
+}
+
+resource "keycloak_openid_hardcoded_claim_protocol_mapper" "client_uuid_claim" {
+  count       = var.client_uuid != null ? 1 : 0
+
+  realm_id    = data.keycloak_realm.mo.id
+  client_id   = keycloak_openid_client.client.id
+  name        = "hardcoded-uuid"
+
+  claim_name  = "uuid"
+  claim_value = var.client_uuid
 }
