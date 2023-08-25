@@ -44,17 +44,7 @@ variable "keycloak_mo_client_redirect_uri" {
   description = ""
 }
 
-variable "keycloak_egir_client_redirect_uri" {
-  type        = list(string)
-  description = ""
-}
-
 variable "keycloak_mo_client_web_origin" {
-  type        = list(string)
-  description = ""
-}
-
-variable "keycloak_egir_client_web_origin" {
   type        = list(string)
   description = ""
 }
@@ -77,17 +67,6 @@ variable "keycloak_dipex_client_enabled" {
 }
 
 variable "keycloak_dipex_client_secret" {
-  type        = string
-  description = ""
-  sensitive   = true
-}
-
-variable "keycloak_egir_client_enabled" {
-  type        = bool
-  description = ""
-}
-
-variable "keycloak_egir_client_secret" {
   type        = string
   description = ""
   sensitive   = true
@@ -177,33 +156,8 @@ variable "keycloak_dipex_token_lifespan" {
   description = ""
 }
 
-variable "keycloak_lora_token_lifespan" {
-  type        = number
-  description = ""
-}
-
-variable "keycloak_lora_dipex_token_lifespan" {
-  type        = number
-  description = ""
-}
-
 variable "keycloak_orgviewer_token_lifespan" {
   type        = number
-  description = ""
-}
-
-variable "keycloak_lora_client_secret" {
-  type        = string
-  description = ""
-}
-
-variable "keycloak_lora_dipex_client_secret" {
-  type        = string
-  description = ""
-}
-
-variable "keycloak_lora_dipex_client_enabled" {
-  type        = bool
   description = ""
 }
 
@@ -384,22 +338,6 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "mo_client_uuid_mapper
   claim_name     = "uuid"
 }
 
-resource "keycloak_openid_client" "egir" {
-  count     = var.keycloak_egir_client_enabled == true ? 1 : 0
-  realm_id  = keycloak_realm.mo.id
-  client_id = "egir"
-  enabled   = var.keycloak_egir_client_enabled
-
-  name                  = "EGIR"
-  access_type           = "PUBLIC"
-  standard_flow_enabled = true
-
-  client_secret = var.keycloak_egir_client_secret
-
-  valid_redirect_uris = var.keycloak_egir_client_redirect_uri
-  web_origins         = var.keycloak_egir_client_web_origin
-}
-
 resource "keycloak_openid_client" "dipex" {
   count     = var.keycloak_dipex_client_enabled == true ? 1 : 0
   realm_id  = keycloak_realm.mo.id
@@ -466,20 +404,6 @@ resource "keycloak_openid_hardcoded_claim_protocol_mapper" "orgviewer_uuid_claim
 
   claim_name  = "uuid"
   claim_value = "03800000-baad-c0de-006F-726776696577"
-}
-
-resource "keycloak_openid_client" "lora_dipex" {
-  count     = var.keycloak_lora_dipex_client_enabled == true ? 1 : 0
-  realm_id  = keycloak_realm.lora.id
-  client_id = "dipex"
-  enabled   = var.keycloak_lora_dipex_client_enabled
-
-  name                     = "DIPEX"
-  access_type              = "CONFIDENTIAL"
-  service_accounts_enabled = true
-  access_token_lifespan    = var.keycloak_lora_dipex_token_lifespan
-
-  client_secret = var.keycloak_lora_dipex_client_secret
 }
 
 # Users
