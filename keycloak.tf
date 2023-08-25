@@ -421,6 +421,17 @@ resource "keycloak_openid_client_service_account_realm_role" "dipex_admin_role" 
   role                    = keycloak_role.admin.name
 }
 
+resource "keycloak_openid_hardcoded_claim_protocol_mapper" "dipex_uuid_claim" {
+  count       = var.keycloak_dipex_client_enabled == true ? 1 : 0
+
+  realm_id    = keycloak_realm.mo.id
+  client_id   = keycloak_openid_client.dipex[0].id
+  name        = "hardcoded-uuid"
+
+  claim_name  = "uuid"
+  claim_value = "d1fec000-baad-c0de-0000-004449504558"
+}
+
 resource "keycloak_openid_client" "orgviewer" {
   count     = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
   realm_id  = keycloak_realm.mo.id
@@ -444,6 +455,17 @@ resource "keycloak_openid_client_service_account_realm_role" "orgviewer_reader_r
   realm_id                = keycloak_realm.mo.id
   service_account_user_id = keycloak_openid_client.orgviewer[0].service_account_user_id
   role                    = keycloak_role.composite_roles["reader"].name
+}
+
+resource "keycloak_openid_hardcoded_claim_protocol_mapper" "orgviewer_uuid_claim" {
+  count     = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
+
+  realm_id    = keycloak_realm.mo.id
+  client_id   = keycloak_openid_client.orgviewer[0].id
+  name        = "hardcoded-uuid"
+
+  claim_name  = "uuid"
+  claim_value = "03800000-baad-c0de-006F-726776696577"
 }
 
 resource "keycloak_openid_client" "lora_dipex" {

@@ -44,6 +44,7 @@ services:
       TF_VAR_client_name: sd
       TF_VAR_client_secret: 1ca5ef4a-eed9-4142-9c82-f8e4bab67d9e
       TF_VAR_client_roles: '["admin"]'
+      TF_VAR_client_uuid: 5d05d05d-baad-c0de-0000-53444c6f656e
     depends_on:
       keycloak:
         condition: service_healthy
@@ -65,6 +66,7 @@ services:
       KEYCLOAK_DIPEX_CLIENT_ENABLED: "true"
       KEYCLOAK_DIPEX_CLIENT_SECRET: 0ba5ef4a-eed9-4142-9c82-f8e4bab67d8d
       KEYCLOAK_DIPEX_TOKEN_LIFESPAN: 360
+
       KEYCLOAK_EGIR_CLIENT_ENABLED: "true"
       KEYCLOAK_EGIR_CLIENT_SECRET: 1ca5ef4a-eed9-4142-9c82-f8e4bab67d9e
       KEYCLOAK_RBAC_ENABLED: "true"
