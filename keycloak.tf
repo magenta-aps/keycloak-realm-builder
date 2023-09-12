@@ -196,7 +196,7 @@ locals {
     "address", "association", "class", "configuration", "employee",
     "engagement_association", "engagement", "facet", "file", "health",
     "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
-    "org_unit", "related_unit", "role", "version"
+    "org_unit", "registration", "related_unit", "role", "version"
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
@@ -210,6 +210,7 @@ locals {
     list_files     = "List files stored in MO"
     download_files = "Download files stored in MO"
     upload_files   = "Upload files to MO"
+    auditor        = "Read access for the audit read log"
   })
 }
 
@@ -286,6 +287,7 @@ locals {
     {
       owner  = keycloak_role.owner.id
       writer = keycloak_role.writer.id
+      auditor = keycloak_role.roles["auditor"].id
     }
   )
 }
