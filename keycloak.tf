@@ -96,7 +96,7 @@ variable "keycloak_idp_enable" {
 variable "keycloak_idp_encryption_key" {
   type        = string
   description = ""
-  default = ""
+  default     = ""
 }
 
 variable "keycloak_idp_signing_certificate" {
@@ -193,10 +193,10 @@ resource "keycloak_realm" "lora" {
 # TODO: Fetch these from OS2mo
 locals {
   collections = [
-    "address", "association", "class", "configuration", "employee",
+    "address", "association", "auditlog", "class", "configuration", "employee",
     "engagement_association", "engagement", "facet", "file", "health",
     "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
-    "org_unit", "related_unit", "role", "version"
+    "org_unit", "registration", "related_unit", "role", "version"
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
@@ -284,8 +284,8 @@ locals {
       for role in keycloak_role.composite_roles : role.name => role.id
     },
     {
-      owner  = keycloak_role.owner.id
-      writer = keycloak_role.writer.id
+      owner   = keycloak_role.owner.id
+      writer  = keycloak_role.writer.id
     }
   )
 }
@@ -316,11 +316,11 @@ resource "keycloak_openid_client" "mo_frontend" {
   client_id = "mo-frontend"
   enabled   = true
 
-  name                  = "OS2mo Frontend"
-  access_type           = "PUBLIC"
-  standard_flow_enabled = true
+  name                         = "OS2mo Frontend"
+  access_type                  = "PUBLIC"
+  standard_flow_enabled        = true
   direct_access_grants_enabled = true
-  access_token_lifespan = var.keycloak_mo_token_lifespan
+  access_token_lifespan        = var.keycloak_mo_token_lifespan
 
   valid_redirect_uris = var.keycloak_mo_client_redirect_uri
   web_origins         = var.keycloak_mo_client_web_origin
@@ -360,11 +360,11 @@ resource "keycloak_openid_client_service_account_realm_role" "dipex_admin_role" 
 }
 
 resource "keycloak_openid_hardcoded_claim_protocol_mapper" "dipex_uuid_claim" {
-  count       = var.keycloak_dipex_client_enabled == true ? 1 : 0
+  count = var.keycloak_dipex_client_enabled == true ? 1 : 0
 
-  realm_id    = keycloak_realm.mo.id
-  client_id   = keycloak_openid_client.dipex[0].id
-  name        = "hardcoded-uuid"
+  realm_id  = keycloak_realm.mo.id
+  client_id = keycloak_openid_client.dipex[0].id
+  name      = "hardcoded-uuid"
 
   claim_name  = "uuid"
   claim_value = "d1fec000-baad-c0de-0000-004449504558"
@@ -396,11 +396,11 @@ resource "keycloak_openid_client_service_account_realm_role" "orgviewer_reader_r
 }
 
 resource "keycloak_openid_hardcoded_claim_protocol_mapper" "orgviewer_uuid_claim" {
-  count     = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
+  count = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
 
-  realm_id    = keycloak_realm.mo.id
-  client_id   = keycloak_openid_client.orgviewer[0].id
-  name        = "hardcoded-uuid"
+  realm_id  = keycloak_realm.mo.id
+  client_id = keycloak_openid_client.orgviewer[0].id
+  name      = "hardcoded-uuid"
 
   claim_name  = "uuid"
   claim_value = "03800000-baad-c0de-006F-726776696577"
