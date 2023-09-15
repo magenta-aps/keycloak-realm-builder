@@ -133,37 +133,37 @@ Release IntegrationBuilder version:
 # Deploy stage
 ##############
 
-Deploy RealmBuilder to Dev:
+Deploy RealmBuilder to Flux Dev:
   extends: .release-to-dev
   needs: ["Release RealmBuilder version"]
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-dev
 
-Deploy RealmBuilder to Test:
+Deploy RealmBuilder to Flux Test:
   extends: .release-to-test
   needs: []
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-test
 
-Deploy RealmBuilder to Prod:
+Deploy RealmBuilder to Flux Prod:
   extends: .release-to-prod
   needs: []
   variables:
     ENDPOINT: os2mo/flux/realmbuilder/update-prod
 
-Deploy RealmBuilder to Flux Dev:
+Deploy RealmBuilder to Salt Dev:
   extends: .release-to-dev
   needs: ["Release RealmBuilder version"]
   variables:
     ENDPOINT: os2mo/salt/realmbuilder/update-dev
 
-Deploy RealmBuilder to Flux Test:
+Deploy RealmBuilder to Salt Test:
   extends: .release-to-test
   needs: []
   variables:
     ENDPOINT: os2mo/salt/realmbuilder/update-test
 
-Deploy RealmBuilder to Flux Prod:
+Deploy RealmBuilder to Salt Prod:
   extends: .release-to-prod
   needs: []
   variables:
@@ -171,20 +171,38 @@ Deploy RealmBuilder to Flux Prod:
 
 
 
-Deploy IntegrationBuilder to Dev:
+Deploy IntegrationBuilder to Flux Dev:
   extends: .release-to-dev
   needs: ["Release IntegrationBuilder version"]
   variables:
     ENDPOINT: os2mo/flux/integrationbuilder/update-dev
 
-Deploy IntegrationBuilder to Test:
+Deploy IntegrationBuilder to Flux Test:
   extends: .release-to-test
   needs: []
   variables:
     ENDPOINT: os2mo/flux/integrationbuilder/update-test
 
-Deploy IntegrationBuilder to Prod:
+Deploy IntegrationBuilder to Flux Prod:
   extends: .release-to-prod
   needs: []
   variables:
     ENDPOINT: os2mo/flux/integrationbuilder/update-prod
+
+Deploy IntegrationBuilder to Salt Dev:
+  extends: .release-to-dev
+  needs: ["Release IntegrationBuilder version"]
+  variables:
+    ENDPOINT: os2mo/salt/integrationbuilder/update-dev
+
+Deploy IntegrationBuilder to Salt Test:
+  extends: .release-to-test
+  needs: []
+  variables:
+    ENDPOINT: os2mo/salt/integrationbuilder/update-test
+
+Deploy IntegrationBuilder to Salt Prod:
+  extends: .release-to-prod
+  needs: []
+  variables:
+    ENDPOINT: os2mo/salt/integrationbuilder/update-prod
