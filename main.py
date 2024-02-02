@@ -108,10 +108,6 @@ class Settings(BaseSettings):
     # "all", "external" or "none". The options are further described here:
     # https://www.keycloak.org/docs/latest/server_installation/#_setting_up_ssl
     keycloak_ssl_required_mo: str = "all"
-    keycloak_ssl_required_lora: str = "all"
-
-    # LoRa
-    keycloak_lora_realm_enabled: bool = False
 
     @root_validator
     def optionally_required(cls, values: Dict[str, Any]) -> Dict[str, Any]:

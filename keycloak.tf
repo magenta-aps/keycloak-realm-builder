@@ -140,12 +140,6 @@ variable "keycloak_ssl_required_mo" {
   default     = "all"
 }
 
-variable "keycloak_ssl_required_lora" {
-  type        = string
-  description = ""
-  default     = "all"
-}
-
 variable "keycloak_mo_token_lifespan" {
   type        = number
   description = ""
@@ -161,12 +155,6 @@ variable "keycloak_orgviewer_token_lifespan" {
   description = ""
 }
 
-variable "keycloak_lora_realm_enabled" {
-  type        = bool
-  description = ""
-}
-
-
 provider "keycloak" {
   client_id = var.keycloak_admin_client_id
   username  = var.keycloak_admin_username
@@ -181,13 +169,6 @@ resource "keycloak_realm" "mo" {
   enabled      = true
   display_name = var.keycloak_realm_display_name
   ssl_required = var.keycloak_ssl_required_mo
-}
-
-resource "keycloak_realm" "lora" {
-  realm        = "lora"
-  enabled      = var.keycloak_lora_realm_enabled
-  display_name = "LoRa"
-  ssl_required = var.keycloak_ssl_required_lora
 }
 
 # TODO: Fetch these from OS2mo
