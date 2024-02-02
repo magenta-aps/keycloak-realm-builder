@@ -63,24 +63,6 @@ class Settings(BaseSettings):
     # MO token lifespan
     keycloak_mo_token_lifespan: PositiveInt = 300
 
-    # Toggles DIPEX client enablement. If non-user clients should be allowed to
-    # contact Keycloak, the DIPEX client can be used. The client uses a
-    # client secret auth mechanism to get OIDC tokens instead of the usual
-    # username/password mechanism (see further details in the Sphinx MO docs on
-    # the development branch)
-    keycloak_dipex_client_enabled: bool = False
-
-    # Fix 45298: We need longer access token lifespan for DIPEX
-    # This should be set to the default of 5 minutes when we fix our clients
-    # Default: 43200 seconds, i.e. 12 hours
-    keycloak_dipex_token_lifespan: PositiveInt = 43200
-
-    # DIPEX client secret that can be used to obtain an OIDC token
-    # For an example, see:
-    # * https://git.magenta.dk/rammearkitektur/os2mo/-/blob/development/backend/ \
-    #       tests/manual/keycloak-client-secret.py
-    keycloak_dipex_client_secret: Optional[str]
-
     # Toggle orgviewer client.
     keycloak_orgviewer_client_enabled: bool = False
     # Token lifespan is 0 for now. We can remove this, once the RBAC reader
@@ -119,7 +101,6 @@ class Settings(BaseSettings):
                 "keycloak_idp_logout_service_url",
                 "keycloak_idp_signon_service_url",
             ),
-            "keycloak_dipex_client_enabled": ("keycloak_dipex_client_secret",),
             "keycloak_orgviewer_client_enabled": ("keycloak_orgviewer_client_secret",),
         }
         for main_key, required_keys in optionally_required_fields.items():
