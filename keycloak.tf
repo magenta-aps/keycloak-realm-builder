@@ -265,6 +265,12 @@ resource "keycloak_role" "admin" {
   ]
 }
 
+resource "keycloak_role" "service_api" {
+  realm_id    = keycloak_realm.mo.id
+  name        = "service_api"
+  description = "Can access OS2mo's old Service API"
+}
+
 locals {
   roles = merge(
     local.subroles,
@@ -478,6 +484,18 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_owner_role_mapper" {
     "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
     "attribute.value" = "os2mo-owner"
     "role"            = keycloak_role.owner.name
+  }
+}
+
+resource keycloak_hardcoded_role_identity_provider_mapper "adfs_service_api_access" {
+  count                    = var.keycloak_idp_enable == true ? 1 : 0
+  realm                    = keycloak_realm.mo.id
+  name                     = "service-api-access"
+  identity_provider_alias  = keycloak_saml_identity_provider.adfs[0].alias
+  role                     = keycloak_role.service_api.name
+
+  extra_config = {
+    syncMode = "INHERIT"
   }
 }
 
