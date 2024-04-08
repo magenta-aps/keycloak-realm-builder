@@ -283,6 +283,8 @@ locals {
     local.subroles,
     {
       admin = keycloak_role.admin.id
+      service_api = keycloak_role.service_api.id
+      lora_api = keycloak_role.lora_api.id
     }
   )
 }
