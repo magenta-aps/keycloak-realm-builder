@@ -161,7 +161,8 @@ locals {
     "address", "association", "auditlog", "class", "configuration", "employee",
     "engagement_association", "engagement", "facet", "file", "health",
     "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
-    "org_unit", "registration", "related_unit", "role", "version"
+    # TODO: You can remove "role" once #59798 is deployed everywhere
+    "org_unit", "registration", "related_unit", "role", "rolebinding", "version"
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
