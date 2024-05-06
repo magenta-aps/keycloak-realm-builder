@@ -250,8 +250,8 @@ locals {
       for role in keycloak_role.composite_roles : role.name => role.id
     },
     {
-      owner   = keycloak_role.owner.id
-      writer  = keycloak_role.writer.id
+      owner  = keycloak_role.owner.id
+      writer = keycloak_role.writer.id
     }
   )
 }
@@ -283,9 +283,9 @@ locals {
   roles = merge(
     local.subroles,
     {
-      admin = keycloak_role.admin.id
+      admin       = keycloak_role.admin.id
       service_api = keycloak_role.service_api.id
-      lora_api = keycloak_role.lora_api.id
+      lora_api    = keycloak_role.lora_api.id
     }
   )
 }
@@ -497,12 +497,28 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_owner_role_mapper" {
   }
 }
 
-resource keycloak_hardcoded_role_identity_provider_mapper "adfs_service_api_access" {
+resource "keycloak_custom_identity_provider_mapper" "adfs_reader_role_mapper" {
   count                    = var.keycloak_idp_enable == true ? 1 : 0
   realm                    = keycloak_realm.mo.id
-  name                     = "service-api-access"
+  name                     = "reader-mapper"
   identity_provider_alias  = keycloak_saml_identity_provider.adfs[0].alias
-  role                     = keycloak_role.service_api.name
+  identity_provider_mapper = "saml-role-idp-mapper"
+
+  # extra_config with syncMode is required in Keycloak 10+
+  extra_config = {
+    syncMode          = "INHERIT"
+    "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
+    "attribute.value" = "os2mo-reader"
+    "role"            = keycloak_role.composite_roles["reader"].name
+  }
+}
+
+resource "keycloak_hardcoded_role_identity_provider_mapper" "adfs_service_api_access" {
+  count                   = var.keycloak_idp_enable == true ? 1 : 0
+  realm                   = keycloak_realm.mo.id
+  name                    = "service-api-access"
+  identity_provider_alias = keycloak_saml_identity_provider.adfs[0].alias
+  role                    = keycloak_role.service_api.name
 
   extra_config = {
     syncMode = "INHERIT"
