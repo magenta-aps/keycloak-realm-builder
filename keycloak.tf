@@ -235,10 +235,6 @@ resource "keycloak_role" "owner" {
   realm_id    = keycloak_realm.mo.id
   name        = "owner"
   description = "Special write access role, allowing only write acces to entities of which the user is owner in MO"
-  composite_roles = [
-    keycloak_role.composite_roles["reader"].id,
-    keycloak_role.writer.id,
-  ]
 }
 
 locals {
