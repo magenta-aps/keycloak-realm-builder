@@ -235,6 +235,13 @@ resource "keycloak_role" "owner" {
   realm_id    = keycloak_realm.mo.id
   name        = "owner"
   description = "Special write access role, allowing only write acces to entities of which the user is owner in MO"
+  composite_roles = [
+    # TODO: The owner role should be completely separate from the reader role,
+    # but we have kind of grandfathered in some customers that haven't mapped
+    # the os2mo-reader role individually, so removing it breaks their access.
+    # This composite role should be removed.
+    keycloak_role.composite_roles["reader"].id,
+  ]
 }
 
 locals {
