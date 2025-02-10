@@ -9,4 +9,5 @@ ENV PYTHONUNBUFFERED=1 \
 COPY main.tf .
 COPY .terraform.lock.hcl .
 COPY run.sh .
+RUN terraform init --backend=false
 ENTRYPOINT [ "sh", "run.sh" ]
