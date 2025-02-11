@@ -61,7 +61,7 @@ include:
     - pip install poetry pre-commit
     - poetry --version
     - poetry config virtualenvs.in-project true
-    - poetry install -vv
+    - poetry install -vv --no-root
     - pre-commit install
 
 lint-all:
