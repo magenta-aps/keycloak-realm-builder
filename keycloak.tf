@@ -159,7 +159,7 @@ resource "keycloak_realm" "mo" {
 locals {
   # TODO: you can remove "auditlog" once #64270 is deploed everywhere
   collections = [
-    "address", "association", "auditlog", "acesslog", "class", "configuration",
+    "address", "association", "auditlog", "accesslog", "class", "configuration",
     "employee", "engagement_association", "engagement", "facet", "file",
     "health", "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
     # TODO: You can remove "role" once #59798 is deployed everywhere
