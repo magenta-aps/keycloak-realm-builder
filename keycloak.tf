@@ -161,7 +161,8 @@ locals {
   collections = [
     "address", "association", "auditlog", "accesslog", "class", "configuration",
     "employee", "engagement_association", "engagement", "facet", "file",
-    "health", "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
+    "health", "itsystem", "ituser", "kle", "leave", "listener", "manager",
+    "owner", "org",
     # TODO: You can remove "role" once #59798 is deployed everywhere
     "org_unit", "registration", "related_unit", "role", "rolebinding", "version"
   ]
@@ -174,9 +175,17 @@ locals {
     for tup in setproduct(local.permission_types, local.collections) :
     "${tup[0]}_${tup[1]}" => "${tup[0]}-access for ${tup[1]}"
     }, {
+    # Files
     list_files     = "List files stored in MO"
     download_files = "Download files stored in MO"
     upload_files   = "Upload files to MO"
+
+    # Events
+    send_event        = "Send events"
+    fetch_event       = "Fetch events"
+    acknowledge_event = "Acknowledge events"
+    silence_event     = "Silence events"
+    unsilence_event   = "Unsilence events"
   })
 }
 
