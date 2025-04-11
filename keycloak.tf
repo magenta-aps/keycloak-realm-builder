@@ -161,8 +161,8 @@ locals {
   collections = [
     "address", "association", "auditlog", "accesslog", "class",
     "configuration", "employee", "engagement_association", "engagement",
-    "event_listener", "event_namespace", "facet", "file", "health", "itsystem",
-    "ituser", "kle", "leave", "manager", "owner", "org",
+    "event", "event_listener", "event_namespace", "facet", "file", "health",
+    "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
     # TODO: You can remove "role" once #59798 is deployed everywhere
     "org_unit", "registration", "related_unit", "role", "rolebinding", "version"
   ]
