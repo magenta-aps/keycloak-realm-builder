@@ -164,14 +164,16 @@ resource "keycloak_realm" "mo" {
 
 # TODO: Fetch these from OS2mo
 locals {
-  # TODO: you can remove "auditlog" once #64270 is deploed everywhere
   collections = [
-    "address", "association", "auditlog", "accesslog", "class",
+    "address", "association", "accesslog", "class",
     "configuration", "employee", "engagement_association", "engagement",
     "event", "event_listener", "event_namespace", "facet", "file", "health",
     "itsystem", "ituser", "kle", "leave", "manager", "owner", "org",
+    "org_unit", "registration", "related_unit", "rolebinding", "version",
+    # TODO: You can remove "auditlog" once #64270 is deployed everywhere
+    "auditlog", 
     # TODO: You can remove "role" once #59798 is deployed everywhere
-    "org_unit", "registration", "related_unit", "role", "rolebinding", "version"
+    "role", 
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
