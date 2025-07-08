@@ -153,6 +153,13 @@ resource "keycloak_realm" "mo" {
   enabled      = true
   display_name = var.keycloak_realm_display_name
   ssl_required = var.keycloak_ssl_required_mo
+
+  internationalization {
+    supported_locales = [
+      "en",
+    ]
+    default_locale = "en"
+  }
 }
 
 # TODO: Fetch these from OS2mo
