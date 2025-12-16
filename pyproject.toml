@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keycloak-realm-builder"
-version = "0.0.0"  # versioning handled by conventional commits
+version = "0.0.0"                                                                                       # versioning handled by conventional commits
 description = "Build Keycloak JSON configuration files from Jinja2 templates and environment variables"
 authors = ["Magenta <info@magenta.dk>"]
 license = "MPL-2.0"
@@ -11,17 +11,19 @@ keywords = ["os2mo", "keycloak"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = {extras = ["email"], version = "^1.10.7"}
+pydantic = { extras = ["email"], version = "^1.10.7" }
 click = "^8.1.3"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
-flake8 = "^6.0.0"
-mypy = "^1.2.0"
+pre-commit = "^3"
+ruff = "^0.6"
+mypy = "^1"
 pytest = "^7.3.0"
 pytest-cov = "^4.0.0"
 pytest-split = "^0.8.1"
-reorder-python-imports = "^3.9.0"
+
+[tool.mypy]
+plugins = "pydantic.mypy"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

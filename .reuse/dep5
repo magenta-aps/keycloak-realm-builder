@@ -5,4 +5,3 @@ Upstream-Contact: Magenta ApS <info@magenta.dk>
 Files: .flake8 mypy.ini poetry.* *.toml *.json *.yaml *.yml *.md .gitignore
 Copyright: 2021 Magenta ApS <https://magenta.dk>
 License: MPL-2.0
-

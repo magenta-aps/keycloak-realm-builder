@@ -113,9 +113,9 @@ resource "keycloak_openid_client" "client" {
   service_accounts_enabled = true
   access_token_lifespan    = var.client_lifespan
 
-  standard_flow_enabled    = var.client_standard_flow_enabled
-  valid_redirect_uris      = var.client_valid_redirect_urls
-  web_origins              = var.client_web_origins
+  standard_flow_enabled = var.client_standard_flow_enabled
+  valid_redirect_uris   = var.client_valid_redirect_urls
+  web_origins           = var.client_web_origins
 
   client_secret = coalesce(var.client_secret, random_password.client_secret.result)
 }
@@ -129,16 +129,16 @@ resource "keycloak_openid_client_service_account_realm_role" "client_role" {
 }
 
 output "client_secret" {
-  value = keycloak_openid_client.client.client_secret
+  value     = keycloak_openid_client.client.client_secret
   sensitive = true
 }
 
 resource "keycloak_openid_hardcoded_claim_protocol_mapper" "client_uuid_claim" {
-  count       = var.client_uuid != null ? 1 : 0
+  count = var.client_uuid != null ? 1 : 0
 
-  realm_id    = data.keycloak_realm.mo.id
-  client_id   = keycloak_openid_client.client.id
-  name        = "hardcoded-uuid"
+  realm_id  = data.keycloak_realm.mo.id
+  client_id = keycloak_openid_client.client.id
+  name      = "hardcoded-uuid"
 
   claim_name  = "uuid"
   claim_value = var.client_uuid
