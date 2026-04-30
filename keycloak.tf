@@ -140,11 +140,13 @@ variable "keycloak_orgviewer_token_lifespan" {
 }
 
 provider "keycloak" {
-  client_id = var.keycloak_admin_client_id
-  username  = var.keycloak_admin_username
-  password  = var.keycloak_admin_password
-  url       = var.keycloak_url
-  base_path = "/auth"
+  client_id      = var.keycloak_admin_client_id
+  username       = var.keycloak_admin_username
+  password       = var.keycloak_admin_password
+  url            = var.keycloak_url
+  base_path      = "/auth"
+  # The default 15s is too short under load: Keycloak commits after the client times out, drifting state.
+  client_timeout = 60
 }
 
 # Realms
