@@ -172,8 +172,6 @@ locals {
     "event_namespace", "facet", "file", "itsystem", "ituser", "kle", "leave",
     "manager", "owner", "org", "org_unit", "registration", "related_unit",
     "rolebinding",
-    # TODO: You can remove "configuration" once OS2mo 49.0.0 is everywhere
-    "configuration",
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
