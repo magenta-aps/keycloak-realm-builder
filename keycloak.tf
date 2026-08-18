@@ -166,21 +166,35 @@ resource "keycloak_realm" "mo" {
 
 # TODO: Fetch these from OS2mo
 locals {
-  collections = [
-    "address", "association", "accesslog", "class", "employee",
-    "engagement", "event_listener",
-    "event_namespace", "facet", "itsystem", "ituser", "kle", "leave",
-    "manager", "owner", "org", "org_unit", "registration", "related_unit",
+  full_collections = [
+    "address", "association", "class", "employee", "engagement", "facet",
+    "itsystem", "ituser", "kle", "leave", "manager", "org_unit", "owner",
     "rolebinding",
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
   ]
+  partial_collections = {
+    accesslog       = ["read"]
+    event_listener  = ["read", "create", "delete"]
+    event_namespace = ["read", "create", "delete"]
+    org             = ["read", "create"]
+    registration    = ["read"]
+    related_unit    = ["read", "update", "refresh"]
+  }
+  collection_permissions = merge(
+    { for collection in local.full_collections : collection => local.permission_types },
+    local.partial_collections,
+  )
 }
 locals {
   os2mo_permission = merge({
-    for tup in setproduct(local.permission_types, local.collections) :
-    "${tup[0]}_${tup[1]}" => "${tup[0]}-access for ${tup[1]}"
+    for pair in flatten([
+      for collection, types in local.collection_permissions : [
+        for type in types : { collection = collection, type = type }
+      ]
+    ]) :
+    "${pair.type}_${pair.collection}" => "${pair.type}-access for ${pair.collection}"
     }, {
     # Files
     read_file    = "Read files stored in MO"
@@ -216,9 +230,9 @@ locals {
     "deleter" : ["^delete_.*", "Delete access to everything"],
     "refresher" : ["^refresh_.*", "Refresh access to everything"],
     }, {
-    for collection in local.collections :
+    for collection, types in local.collection_permissions :
     "${collection}_admin" => [
-      "^(${join("|", local.permission_types)})_${collection}$",
+      "^(${join("|", types)})_${collection}$",
       "Full access to ${collection}"
     ]
     }, {
