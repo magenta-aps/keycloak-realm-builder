@@ -169,7 +169,7 @@ locals {
   collections = [
     "address", "association", "accesslog", "class", "employee",
     "engagement", "event", "event_listener",
-    "event_namespace", "facet", "file", "itsystem", "ituser", "kle", "leave",
+    "event_namespace", "facet", "itsystem", "ituser", "kle", "leave",
     "manager", "owner", "org", "org_unit", "registration", "related_unit",
     "rolebinding",
   ]
@@ -183,6 +183,7 @@ locals {
     "${tup[0]}_${tup[1]}" => "${tup[0]}-access for ${tup[1]}"
     }, {
     # Files
+    read_file    = "Read files stored in MO"
     upload_files = "Upload files to MO"
 
     # Events
@@ -219,7 +220,7 @@ locals {
       "Full access to ${collection}"
     ]
     }, {
-    "file_admin" : [".*_files", "Full access to files"],
+    "file_admin" : ["^(read_file|upload_files)$", "Full access to files"],
   })
 }
 
