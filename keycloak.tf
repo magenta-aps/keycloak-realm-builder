@@ -174,8 +174,6 @@ locals {
     "rolebinding",
     # TODO: You can remove "auditlog" once #64270 is deployed everywhere
     "auditlog",
-    # TODO: You can remove "role" once #59798 is deployed everywhere
-    "role",
     # TODO: You can remove "health" and "version" once OS2mo 43.3.0 is everywhere
     "health",
     "version",
