@@ -168,7 +168,7 @@ resource "keycloak_realm" "mo" {
 locals {
   collections = [
     "address", "association", "accesslog", "class", "employee",
-    "engagement_association", "engagement", "event", "event_listener",
+    "engagement", "event", "event_listener",
     "event_namespace", "facet", "file", "itsystem", "ituser", "kle", "leave",
     "manager", "owner", "org", "org_unit", "registration", "related_unit",
     "rolebinding",
