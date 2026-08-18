@@ -196,6 +196,9 @@ locals {
     ]) :
     "${pair.type}_${pair.collection}" => "${pair.type}-access for ${pair.collection}"
     }, {
+    # Actors
+    read_actor = "Read actors"
+
     # Files
     read_file    = "Read files stored in MO"
     upload_files = "Upload files to MO"
