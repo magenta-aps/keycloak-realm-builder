@@ -183,9 +183,7 @@ locals {
     "${tup[0]}_${tup[1]}" => "${tup[0]}-access for ${tup[1]}"
     }, {
     # Files
-    list_files     = "List files stored in MO"
-    download_files = "Download files stored in MO"
-    upload_files   = "Upload files to MO"
+    upload_files = "Upload files to MO"
 
     # Events
     send_event        = "Send events"
