@@ -314,6 +314,9 @@ resource "keycloak_role" "service_api" {
   realm_id    = keycloak_realm.mo.id
   name        = "service_api"
   description = "Can access OS2mo's old Service API"
+  composite_roles = [
+    keycloak_role.composite_roles["reader"].id,
+  ]
 }
 
 resource "keycloak_role" "lora_api" {
