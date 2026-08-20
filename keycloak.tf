@@ -166,44 +166,53 @@ resource "keycloak_realm" "mo" {
 
 # TODO: Fetch these from OS2mo
 locals {
-  collections = [
-    "address", "association", "accesslog", "class", "employee",
-    "engagement_association", "engagement", "event", "event_listener",
-    "event_namespace", "facet", "file", "itsystem", "ituser", "kle", "leave",
-    "manager", "owner", "org", "org_unit", "registration", "related_unit",
+  full_collections = [
+    "address", "association", "class", "employee", "engagement", "facet",
+    "itsystem", "ituser", "kle", "leave", "manager", "org_unit", "owner",
     "rolebinding",
-    # TODO: You can remove "auditlog" once #64270 is deployed everywhere
-    "auditlog",
-    # TODO: You can remove "role" once #59798 is deployed everywhere
-    "role",
-    # TODO: You can remove "health" and "version" once OS2mo 43.3.0 is everywhere
-    "health",
-    "version",
-    # TODO: You can remove "configuration" once OS2mo 49.0.0 is everywhere
-    "configuration",
   ]
   permission_types = [
     "read", "create", "update", "terminate", "delete", "refresh"
   ]
+  partial_collections = {
+    accesslog       = ["read"]
+    event_listener  = ["read", "create", "delete"]
+    event_namespace = ["read", "create", "delete"]
+    org             = ["read", "create"]
+    registration    = ["read"]
+    related_unit    = ["read", "update", "refresh"]
+  }
+  collection_permissions = merge(
+    { for collection in local.full_collections : collection => local.permission_types },
+    local.partial_collections,
+  )
 }
 locals {
   os2mo_permission = merge({
-    for tup in setproduct(local.permission_types, local.collections) :
-    "${tup[0]}_${tup[1]}" => "${tup[0]}-access for ${tup[1]}"
+    for pair in flatten([
+      for collection, types in local.collection_permissions : [
+        for type in types : { collection = collection, type = type }
+      ]
+    ]) :
+    "${pair.type}_${pair.collection}" => "${pair.type}-access for ${pair.collection}"
     }, {
+    # Actors
+    read_actor = "Read actors"
+
     # Files
-    list_files     = "List files stored in MO"
-    download_files = "Download files stored in MO"
-    upload_files   = "Upload files to MO"
+    read_file    = "Read files stored in MO"
+    upload_files = "Upload files to MO"
 
     # Events
+    read_event        = "Read events"
     send_event        = "Send events"
     fetch_event       = "Fetch events"
     acknowledge_event = "Acknowledge events"
     silence_event     = "Silence events"
     unsilence_event   = "Unsilence events"
     rerun_event       = "Rerun events"
-    read_event_all    = "Read all events, regardless of owner"
+    # Absent from RBAC_MAP; checked directly in full_event_resolver.
+    read_event_all = "Read all events, regardless of owner"
   })
 }
 
@@ -224,13 +233,17 @@ locals {
     "deleter" : ["^delete_.*", "Delete access to everything"],
     "refresher" : ["^refresh_.*", "Refresh access to everything"],
     }, {
-    for collection in local.collections :
+    for collection, types in local.collection_permissions :
     "${collection}_admin" => [
-      "^(${join("|", local.permission_types)})_${collection}$",
+      "^(${join("|", types)})_${collection}$",
       "Full access to ${collection}"
     ]
     }, {
-    "file_admin" : [".*_files", "Full access to files"],
+    "file_admin" : ["^(read_file|upload_files)$", "Full access to files"],
+    "event_admin" : [
+      "^(read_event|read_event_all|send_event|fetch_event|acknowledge_event|silence_event|unsilence_event|rerun_event)$",
+      "Full access to events"
+    ],
   })
 }
 
