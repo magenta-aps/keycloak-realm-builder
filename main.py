@@ -86,6 +86,10 @@ class Settings(BaseSettings):
     keycloak_idp_signon_service_url: Optional[AnyHttpUrl]
     keycloak_idp_clock_skew: int = 10
 
+    # Custom realm signing key.
+    keycloak_realm_rsa_private_key: Optional[str]
+    keycloak_realm_rsa_certificate: Optional[str]
+
     # Specifies whether SSL is required for Keycloak requests. Can be one of
     # "all", "external" or "none". The options are further described here:
     # https://www.keycloak.org/docs/latest/server_installation/#_setting_up_ssl
