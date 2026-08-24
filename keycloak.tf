@@ -123,6 +123,17 @@ variable "keycloak_idp_clock_skew" {
   description = ""
 }
 
+variable "keycloak_realm_rsa_private_key" {
+  type        = string
+  description = "Private RSA Key encoded in PEM format."
+  sensitive   = true
+}
+
+variable "keycloak_realm_rsa_certificate" {
+  type        = string
+  description = "X509 Certificate encoded in PEM format."
+}
+
 variable "keycloak_ssl_required_mo" {
   type        = string
   description = ""
@@ -162,6 +173,19 @@ resource "keycloak_realm" "mo" {
     ]
     default_locale = "en"
   }
+}
+
+resource "keycloak_realm_keystore_rsa" "custom" {
+  count = var.keycloak_realm_rsa_private_key != null && var.keycloak_realm_rsa_certificate != null ? 1 : 0
+
+  name     = "custom"
+  realm_id = keycloak_realm.mo.id
+
+  private_key = var.keycloak_realm_rsa_private_key
+  certificate = var.keycloak_realm_rsa_certificate
+
+  # Higher priority than the auto-generated "rsa-generated" key (priority 100).
+  priority = 1000
 }
 
 # TODO: Fetch these from OS2mo
