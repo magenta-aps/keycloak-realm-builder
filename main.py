@@ -74,6 +74,12 @@ class Settings(BaseSettings):
     # which can be handy for testing purposes
     keycloak_realm_users: Optional[List[KeycloakUser]] = []
 
+    # Keycloak 24+ filters user attributes not declared in the realm's
+    # user profile. Enable unmanaged attributes so object-guid can be
+    # set on users. Disable this when running against Keycloak < 24,
+    # where the user profile endpoint does not exist by default.
+    keycloak_user_profile_enabled: bool = True
+
     # IDP Configuration
     keycloak_idp_enable: bool = False
     keycloak_idp_encryption_key: Optional[str]

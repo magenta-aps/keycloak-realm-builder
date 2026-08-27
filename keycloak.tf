@@ -175,6 +175,34 @@ resource "keycloak_realm" "mo" {
   }
 }
 
+variable "keycloak_user_profile_enabled" {
+  type        = bool
+  description = "Manage the realm user profile (Keycloak 24+ only)"
+  default     = true
+}
+
+# Keycloak 24+ filters user attributes not declared in the realm's user
+# profile. Enable unmanaged attributes so the realm-builder can set
+# object-guid on users, and declare only the attributes Keycloak
+# requires to exist: username and email cannot be removed from the
+# user profile, so they must be listed explicitly. Since unmanaged
+# attributes are admin-editable only, no validators or permissions
+# are needed here; everything else keeps Keycloak's defaults.
+resource "keycloak_realm_user_profile" "mo_user_profile" {
+  count = var.keycloak_user_profile_enabled ? 1 : 0
+
+  realm_id                   = keycloak_realm.mo.id
+  unmanaged_attribute_policy = "ADMIN_EDIT"
+
+  attribute {
+    name = "username"
+  }
+
+  attribute {
+    name = "email"
+  }
+}
+
 resource "keycloak_realm_keystore_rsa" "custom" {
   count = var.keycloak_realm_rsa_private_key != null && var.keycloak_realm_rsa_certificate != null ? 1 : 0
 
@@ -428,6 +456,10 @@ resource "keycloak_openid_hardcoded_claim_protocol_mapper" "orgviewer_uuid_claim
 
 # Users
 resource "keycloak_user" "mo_user" {
+  # The user profile must exist before users are created, or Keycloak
+  # filters their undeclared attributes (object-guid) on write.
+  depends_on = [keycloak_realm_user_profile.mo_user_profile]
+
   realm_id = keycloak_realm.mo.id
   username = each.value.username
   enabled  = each.value.enabled
