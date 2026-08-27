@@ -1,7 +1,7 @@
-# This file is maintained automatically by "terraform init".
+# This file is maintained automatically by "tofu init".
 # Manual edits may be lost in future updates.
 
-provider "registry.terraform.io/mrparkers/keycloak" {
+provider "registry.opentofu.org/mrparkers/keycloak" {
   version     = "4.3.1"
   constraints = "4.3.1"
   hashes = [
