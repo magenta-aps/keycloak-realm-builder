@@ -4,8 +4,8 @@
 terraform {
   required_providers {
     keycloak = {
-      source  = "mrparkers/keycloak"
-      version = "3.6.0"
+      source  = "keycloak/keycloak"
+      version = "5.7.0"
     }
   }
 
@@ -91,6 +91,8 @@ provider "keycloak" {
   username  = var.admin_username
   password  = var.admin_password
   url       = var.url
+  # The provider no longer defaults to the legacy /auth context path
+  base_path = "/auth"
 }
 
 data "keycloak_realm" "mo" {

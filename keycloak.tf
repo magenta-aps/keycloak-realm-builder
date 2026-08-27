@@ -5,8 +5,8 @@ terraform {
   backend "pg" {}
   required_providers {
     keycloak = {
-      source  = "mrparkers/keycloak"
-      version = "4.3.1"
+      source  = "keycloak/keycloak"
+      version = "5.7.0"
     }
   }
 }
@@ -512,6 +512,7 @@ resource "keycloak_saml_identity_provider" "adfs" {
   alias   = "saml"
   enabled = var.keycloak_idp_enable
   # Always force reimport of users to get updated groups for RBAC
+  # The provider 5.x default changed to LEGACY, so keep FORCE explicitly.
   sync_mode = "FORCE"
 
   # TODO: encryption key?
