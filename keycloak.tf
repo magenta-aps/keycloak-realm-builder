@@ -5,8 +5,8 @@ terraform {
   backend "pg" {}
   required_providers {
     keycloak = {
-      source  = "mrparkers/keycloak"
-      version = "4.3.1"
+      source  = "keycloak/keycloak"
+      version = "5.7.0"
     }
   }
 }
