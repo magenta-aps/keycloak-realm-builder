@@ -188,92 +188,17 @@ resource "keycloak_realm_keystore_rsa" "custom" {
   priority = 1000
 }
 
-# TODO: Fetch these from OS2mo
-locals {
-  full_collections = [
-    "address", "association", "class", "employee", "engagement", "facet",
-    "itsystem", "ituser", "kle", "leave", "manager", "org_unit", "owner",
-    "rolebinding",
-  ]
-  permission_types = [
-    "read", "create", "update", "terminate", "delete", "refresh"
-  ]
-  partial_collections = {
-    accesslog       = ["read"]
-    event           = ["read"]
-    event_listener  = ["read", "create", "delete"]
-    event_namespace = ["read", "create", "delete"]
-    org             = ["read", "create"]
-    registration    = ["read"]
-    related_unit    = ["read", "update", "refresh"]
-  }
-  collection_permissions = merge(
-    { for collection in local.full_collections : collection => local.permission_types },
-    local.partial_collections,
-  )
-}
-locals {
-  os2mo_permission = merge({
-    for pair in flatten([
-      for collection, types in local.collection_permissions : [
-        for type in types : { collection = collection, type = type }
-      ]
-    ]) :
-    "${pair.type}_${pair.collection}" => "${pair.type}-access for ${pair.collection}"
-    }, {
-    # Actors
-    read_actor = "Read actors"
-  })
+# TODO: This block can be removed once the move has been executed everywhere.
+# https://opentofu.org/docs/language/modules/develop/refactoring/#moved-block-syntax
+moved {
+  from = keycloak_role.composite_roles["reader"]
+  to   = keycloak_role.reader
 }
 
-resource "keycloak_role" "roles" {
-  for_each = local.os2mo_permission
-
+resource "keycloak_role" "reader" {
   realm_id    = keycloak_realm.mo.id
-  name        = each.key
-  description = each.value
-}
-
-locals {
-  composite_roles = merge({
-    "reader" : ["^read_.*", "Read access to everything"],
-    "creator" : ["^create_.*", "Create access to everything"],
-    "updater" : ["^update_.*", "Update access to everything"],
-    "terminator" : ["^terminate_.*", "Terminate access to everything"],
-    "deleter" : ["^delete_.*", "Delete access to everything"],
-    "refresher" : ["^refresh_.*", "Refresh access to everything"],
-    }, {
-    for collection, types in local.collection_permissions :
-    "${collection}_admin" => [
-      "^(${join("|", types)})_${collection}$",
-      "Full access to ${collection}"
-    ]
-  })
-}
-
-resource "keycloak_role" "composite_roles" {
-  for_each = local.composite_roles
-
-  realm_id    = keycloak_realm.mo.id
-  name        = each.key
-  description = each.value[1]
-  composite_roles = [
-    for role in keycloak_role.roles :
-    role.id if can(regex(each.value[0], role.name))
-  ]
-}
-
-resource "keycloak_role" "writer" {
-  realm_id    = keycloak_realm.mo.id
-  name        = "writer"
-  description = "Write access to everything"
-  composite_roles = [
-    keycloak_role.composite_roles["creator"].id,
-    keycloak_role.composite_roles["updater"].id,
-    keycloak_role.composite_roles["terminator"].id,
-    keycloak_role.composite_roles["deleter"].id,
-    keycloak_role.composite_roles["refresher"].id,
-  ]
+  name        = "reader"
+  description = "Read access to everything"
 }
 
 resource "keycloak_role" "owner" {
@@ -285,23 +210,8 @@ resource "keycloak_role" "owner" {
     # but we have kind of grandfathered in some customers that haven't mapped
     # the os2mo-reader role individually, so removing it breaks their access.
     # This composite role should be removed.
-    keycloak_role.composite_roles["reader"].id,
+    keycloak_role.reader.id,
   ]
-}
-
-locals {
-  subroles = merge(
-    {
-      for role in keycloak_role.roles : role.name => role.id
-    },
-    {
-      for role in keycloak_role.composite_roles : role.name => role.id
-    },
-    {
-      owner  = keycloak_role.owner.id
-      writer = keycloak_role.writer.id
-    }
-  )
 }
 
 resource "keycloak_role" "admin" {
@@ -309,8 +219,8 @@ resource "keycloak_role" "admin" {
   name        = "admin"
   description = "Full access to everything"
   composite_roles = [
-    for name, id in local.subroles :
-    id
+    keycloak_role.reader.id,
+    keycloak_role.owner.id,
   ]
 }
 
@@ -319,26 +229,17 @@ resource "keycloak_role" "service_api" {
   name        = "service_api"
   description = "Can access OS2mo's old Service API"
   composite_roles = [
-    keycloak_role.composite_roles["reader"].id,
+    keycloak_role.reader.id,
   ]
 }
 
-resource "keycloak_role" "lora_api" {
-  realm_id    = keycloak_realm.mo.id
-  name        = "lora_api"
-  description = "Can access OS2mo's very old LoRa API"
-}
-
-
 locals {
-  roles = merge(
-    local.subroles,
-    {
-      admin       = keycloak_role.admin.id
-      service_api = keycloak_role.service_api.id
-      lora_api    = keycloak_role.lora_api.id
-    }
-  )
+  roles = {
+    reader      = keycloak_role.reader.id
+    owner       = keycloak_role.owner.id
+    admin       = keycloak_role.admin.id
+    service_api = keycloak_role.service_api.id
+  }
 }
 
 # Clients
@@ -392,7 +293,7 @@ resource "keycloak_openid_client_service_account_realm_role" "orgviewer_reader_r
   count                   = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
   realm_id                = keycloak_realm.mo.id
   service_account_user_id = keycloak_openid_client.orgviewer[0].service_account_user_id
-  role                    = keycloak_role.composite_roles["reader"].name
+  role                    = keycloak_role.reader.name
 }
 
 resource "keycloak_openid_hardcoded_claim_protocol_mapper" "orgviewer_uuid_claim" {
@@ -561,7 +462,7 @@ resource "keycloak_custom_identity_provider_mapper" "adfs_reader_role_mapper" {
     syncMode          = "INHERIT"
     "attribute.name"  = "http://schemas.xmlsoap.org/claims/Group"
     "attribute.value" = "os2mo-reader"
-    "role"            = keycloak_role.composite_roles["reader"].name
+    "role"            = keycloak_role.reader.name
   }
 }
 

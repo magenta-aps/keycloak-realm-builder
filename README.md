@@ -32,9 +32,9 @@ We create realms for each major application area, so as to keep the auth for OS2
 
 ### Roles
 
-Various roles for the OS2mo realm, providing fine-grained access control for the various API operations.
+Roles for the OS2mo realm, providing access control for the various API operations.
 
-Currently only `owner` and `admin` have been implemented.
+Four roles are implemented: `reader`, `owner`, `admin` and `service_api`.
 
 ### Clients
 
