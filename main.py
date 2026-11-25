@@ -63,13 +63,6 @@ class Settings(BaseSettings):
     # MO token lifespan
     keycloak_mo_token_lifespan: PositiveInt = 300
 
-    # Toggle orgviewer client.
-    keycloak_orgviewer_client_enabled: bool = False
-    # Token lifespan is 0 for now. We can remove this, once the RBAC reader
-    # role works _and_ orgviewer implement keycloak in the frontend.
-    keycloak_orgviewer_token_lifespan: PositiveInt = 60 * 60 * 24 * 365
-    keycloak_orgviewer_client_secret: Optional[str]
-
     # The MO realm will have the users below auto-provisioned
     # which can be handy for testing purposes
     keycloak_realm_users: Optional[List[KeycloakUser]] = []
@@ -105,7 +98,6 @@ class Settings(BaseSettings):
                 "keycloak_idp_logout_service_url",
                 "keycloak_idp_signon_service_url",
             ),
-            "keycloak_orgviewer_client_enabled": ("keycloak_orgviewer_client_secret",),
         }
         for main_key, required_keys in optionally_required_fields.items():
             if not values[main_key]:

@@ -49,18 +49,6 @@ variable "keycloak_mo_client_web_origin" {
   description = ""
 }
 
-variable "keycloak_orgviewer_client_enabled" {
-  type        = bool
-  description = ""
-  default     = false
-}
-
-variable "keycloak_orgviewer_client_secret" {
-  type        = string
-  description = ""
-  sensitive   = true
-}
-
 variable "keycloak_realm_users" {
   type = list(object({
     username  = string
@@ -141,11 +129,6 @@ variable "keycloak_ssl_required_mo" {
 }
 
 variable "keycloak_mo_token_lifespan" {
-  type        = number
-  description = ""
-}
-
-variable "keycloak_orgviewer_token_lifespan" {
   type        = number
   description = ""
 }
@@ -269,42 +252,6 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "mo_client_uuid_mapper
 
   user_attribute = "object-guid"
   claim_name     = "uuid"
-}
-
-resource "keycloak_openid_client" "orgviewer" {
-  count     = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
-  realm_id  = keycloak_realm.mo.id
-  client_id = "orgviewer"
-  enabled   = var.keycloak_orgviewer_client_enabled
-
-  name                     = "ORGVIEWER"
-  access_type              = "CONFIDENTIAL"
-  service_accounts_enabled = true
-  access_token_lifespan    = var.keycloak_orgviewer_token_lifespan
-
-  standard_flow_enabled = true
-  valid_redirect_uris   = ["*"]
-  web_origins           = ["*"]
-
-  client_secret = var.keycloak_orgviewer_client_secret
-}
-
-resource "keycloak_openid_client_service_account_realm_role" "orgviewer_reader_role" {
-  count                   = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
-  realm_id                = keycloak_realm.mo.id
-  service_account_user_id = keycloak_openid_client.orgviewer[0].service_account_user_id
-  role                    = keycloak_role.reader.name
-}
-
-resource "keycloak_openid_hardcoded_claim_protocol_mapper" "orgviewer_uuid_claim" {
-  count = var.keycloak_orgviewer_client_enabled == true ? 1 : 0
-
-  realm_id  = keycloak_realm.mo.id
-  client_id = keycloak_openid_client.orgviewer[0].id
-  name      = "hardcoded-uuid"
-
-  claim_name  = "uuid"
-  claim_value = "03800000-baad-c0de-006F-726776696577"
 }
 
 # Users
